@@ -16,4 +16,3 @@ logs/
 *.bak
 *.backup
 *.local
-config/local.toml
