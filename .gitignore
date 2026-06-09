@@ -1,0 +1,19 @@
+.DS_Store
+Thumbs.db
+
+# Never commit local Codex runtime state.
+auth.json
+sessions/
+memory/
+memories/
+plugins/cache/
+.tmp/
+logs/
+*.token
+*.secret
+
+# Local scratch from installation or testing.
+*.bak
+*.backup
+*.local
+config/local.toml

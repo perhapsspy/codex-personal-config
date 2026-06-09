@@ -1,0 +1,11 @@
+# macOS starting point. Copy selected values into ~/.codex/config.toml.
+# Do not copy app-generated absolute paths, project trust entries, auth, or plugin cache state into this repo.
+
+model = "gpt-5.5"
+model_reasoning_effort = "high"
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+
+[agents]
+max_threads = 6
+max_depth = 1
