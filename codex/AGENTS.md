@@ -19,7 +19,7 @@
 
 - Keep global instructions short; route repeatable procedures to skills and project/task state to repo docs.
 - Start read-heavy work with summaries and bounded reads before full files, diffs, logs, or command output.
-- For high-token work, use `$codex-token-discipline` early to bound large command, browser, image, and subagent output.
+- For broad reads, browser loops, subagents, or token audits, use `$codex-token-discipline` to bound output.
 - For dirty worktrees, start with `git status --short` and `git diff --stat`; read path-scoped diffs before full diffs.
 - For authorized long multi-agent work, keep the main thread summary-first and route noisy bounded exploration to read-only support agents.
 
