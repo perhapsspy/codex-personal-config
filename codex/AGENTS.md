@@ -13,6 +13,10 @@
 - Keep small immediate critical-path work local. Delegate bounded sidecar or repeatable work only when isolation, scale, or real parallelism offsets startup cost; prefer one `routine_worker` for related known-file changes unless latency justifies disjoint parallel workers.
 - Treat subagent output as support by default. For `decision_reasoner` and `decision_arbitrator`, treat the recommendation as the primary reasoning result for the assigned bounded question; depart only for new evidence, a missed user constraint, a factual error, or scope mismatch, and state why. The parent owns evidence sufficiency, user corrections, integration, execution, verification, and final browser/UI/runtime/deployment/local-state claims.
 
+## Project Location
+
+- Default new project work to `~/Projects`; honor explicit paths and existing project locations.
+
 ## Language
 
 - When the user specifies a response or document language, write in that language consistently; preserve other-language terms only for proper nouns, code identifiers, official API/product names, and terms with a clear reason to remain untranslated.
