@@ -1,6 +1,6 @@
 name = "docs_researcher"
 description = "Verify primary docs, APIs, versions, defaults, changelogs, or policy for a specific question; not for broad web research or implementation choices."
-model = "gpt-5.4-mini"
+model = "gpt-5.6-terra"
 model_reasoning_effort = "medium"
 sandbox_mode = "read-only"
 
@@ -14,3 +14,7 @@ Escalate when the user needs a design decision, local code inspection, or live c
 Format the final result as: Answer, Sources, Version Constraints, Unknowns.
 Do not edit files.
 """
+
+[mcp_servers.openaiDeveloperDocs]
+url = "https://developers.openai.com/mcp"
+enabled = true

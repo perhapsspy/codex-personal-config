@@ -1,31 +1,18 @@
-## Runtime Defaults
+## Browser and Process Safety
 
-- Treat `~/.codex/config.toml` as the source of truth for model, reasoning, sandbox, approval, MCP, plugin, and trusted-project defaults.
-- Verify current Codex docs before changing global routing, agent, or config behavior; remove stale profiles or plugin entries instead of documenting around them.
+- Use the in-app browser when available; use Playwright only when explicitly requested.
+- After browser automation, close its context and terminate only confirmed automation-owned leftovers. Never touch the user's browser or start automation solely for cleanup.
+- Never terminate the Codex app, `codex app-server`, or `Codex Helper` during routine cleanup. Codex cleanup requires an explicit user request, exact PIDs, exclusion of the active app/server, and verification afterward.
 
-## Browser Hygiene
+## Context Discipline
 
-- Browser checks use the Codex in-app browser. Use Playwright only when the user explicitly asks.
-- For browser/process cleanup, inspect with shell tools; do not load Playwright MCP/browser tools unless browser automation is explicitly requested.
-- After Playwright/Chrome automation, close the browser/context; terminate leftover automation MCP/browser servers (`npm exec @playwright/mcp`, `playwright-mcp`, Playwright `cliDaemon`, `playwright_chromiumdev_profile-*`, automation-launched Chrome helpers). Verify with platform-appropriate process inspection such as `pgrep` on Unix or `Get-Process` on Windows.
-- Do not kill the user's normal Chrome session; target only automation profiles or confirmed orphaned helpers.
+- For read-heavy work, start with summaries and bounded reads; read further when judgment, execution, or verification needs more evidence.
+- In dirty worktrees, start with `git status --short` and `git diff --stat`; inspect path-scoped diffs first.
+- When a bounded non-trivial decision has enough initial evidence and the choice drives architecture, root cause, ownership, migration or rollback, or material rework, delegate the decision to `decision_reasoner` before committing to a plan. Start it without inherited conversation context and pass a neutral packet with the decision question, user constraints and corrections, verified facts or narrow evidence paths, unknowns, and success or rollback conditions; omit the main thread's preferred conclusion. Skip simple edits, docs lookup, fact gathering, implementation delegation, and final review.
+- Use `decision_arbitrator` directly only when a sufficiently evidenced decision is costly to reverse and still has multiple plausible alternatives, or escalate to it when `decision_reasoner` leaves a material conflict despite sufficient evidence. Never use Max reasoning to compensate for missing evidence.
+- Keep small immediate critical-path work local. Delegate bounded sidecar or repeatable work only when isolation, scale, or real parallelism offsets startup cost; prefer one `routine_worker` for related known-file changes unless latency justifies disjoint parallel workers.
+- Treat subagent output as support by default. For `decision_reasoner` and `decision_arbitrator`, treat the recommendation as the primary reasoning result for the assigned bounded question; depart only for new evidence, a missed user constraint, a factual error, or scope mismatch, and state why. The parent owns evidence sufficiency, user corrections, integration, execution, verification, and final browser/UI/runtime/deployment/local-state claims.
 
-## Codex Process Safety
+## Language
 
-- Do not kill Codex app, `codex app-server`, or `Codex Helper` during routine cleanup.
-- Codex-owned cleanup requires explicit user request, exact target PIDs, current app/server excluded by default, no broad process-name kills against Codex itself, and post-cleanup verification that Codex stayed running.
-
-## Context Budget
-
-- Keep global instructions short; route repeatable procedures to skills and project/task state to repo docs.
-- Start read-heavy work with summaries and bounded reads before full files, diffs, logs, or command output.
-- For broad reads, browser loops, subagents, or token audits, use `$codex-token-discipline` to bound output.
-- For dirty worktrees, start with `git status --short` and `git diff --stat`; read path-scoped diffs before full diffs.
-- For authorized long multi-agent work, keep the main thread summary-first and route noisy bounded exploration to read-only support agents.
-
-## Support Agents
-
-- Follow the current Codex subagent tool/docs for spawn authorization, orchestration, waiting, and cleanup; do not duplicate those mechanics here.
-- When the user authorizes subagents for a task/session, treat that authorization as covering bounded support-agent use until the task ends or the user narrows scope.
-- Use `code_mapper` for code paths, `docs_researcher` for primary-source docs/version/policy verification, `deep_reasoner` for bounded hard judgment after initial facts are available, `reviewer` for correctness review, and `routine_worker` only for isolated validated edits.
-- Treat user wording such as "딥플레너", "deep planner", or "deep thinking agent" as a request for `deep_reasoner`; the role is deep reasoning, not plan-writing.
+- When the user specifies a response or document language, write in that language consistently; preserve other-language terms only for proper nouns, code identifiers, official API/product names, and terms with a clear reason to remain untranslated.
