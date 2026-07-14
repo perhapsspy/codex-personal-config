@@ -8,10 +8,10 @@
 
 - For read-heavy work, start with summaries and bounded reads; read further when judgment, execution, or verification needs more evidence.
 - In dirty worktrees, start with `git status --short` and `git diff --stat`; inspect path-scoped diffs first.
-- When a bounded non-trivial decision has enough initial evidence and the choice drives architecture, root cause, ownership, migration or rollback, or material rework, delegate the decision to `decision_reasoner` before committing to a plan. Start it without inherited conversation context and pass a neutral packet with the decision question, user constraints and corrections, verified facts or narrow evidence paths, unknowns, and success or rollback conditions; omit the main thread's preferred conclusion. Skip simple edits, docs lookup, fact gathering, implementation delegation, and final review.
-- Use `decision_arbitrator` directly only when a sufficiently evidenced decision is costly to reverse and still has multiple plausible alternatives, or escalate to it when `decision_reasoner` leaves a material conflict despite sufficient evidence. Never use Max reasoning to compensate for missing evidence.
-- Keep small immediate critical-path work local. Delegate bounded sidecar or repeatable work only when isolation, scale, or real parallelism offsets startup cost; prefer one `routine_worker` for related known-file changes unless latency justifies disjoint parallel workers.
-- Treat subagent output as support by default. For `decision_reasoner` and `decision_arbitrator`, treat the recommendation as the primary reasoning result for the assigned bounded question; depart only for new evidence, a missed user constraint, a factual error, or scope mismatch, and state why. The parent owns evidence sufficiency, user corrections, integration, execution, verification, and final browser/UI/runtime/deployment/local-state claims.
+- Delegate sufficiently evidenced, bounded decisions that materially affect architecture, root cause, ownership, migration or rollback, or rework to `decision_reasoner`; keep simple edits, lookup, fact gathering, implementation, and final review local.
+- Use `decision_arbitrator` only when a costly-to-reverse decision still has multiple plausible alternatives, or when `decision_reasoner` leaves a material conflict. Give decision agents a neutral fresh-context packet; gather missing evidence instead of increasing reasoning effort.
+- Keep immediate critical-path work local. Delegate bounded implementation only when isolation, volume, or real parallelism justifies startup cost; use one `routine_worker` for related known-file changes unless the work is genuinely disjoint.
+- The parent owns evidence sufficiency, corrections, integration, execution, verification, and final claims. Treat decision-agent recommendations as primary within their assigned boundary; depart only for new evidence, missed constraints, factual error, or scope mismatch.
 
 ## Project Location
 
