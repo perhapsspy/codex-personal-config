@@ -11,6 +11,7 @@
 - Route bounded execution by shape: explicit-scope implementation batches to `routine_worker`, fully specified mechanical edits to `spark_micro_worker`, and scoped diff, check, or log evidence to `verification_worker`.
 - Delegate consequential architecture, API, ownership, root-cause, migration, or rollback choices to `decision_reasoner` when a wrong answer would cause substantial rework. Use `reviewer` for high-risk changes and `decision_arbitrator` only for unresolved, costly-to-reverse choices with a neutral evidence packet.
 - Keep critical-path ownership, cross-agent integration, user-facing conclusions, and final judgment local. The parent supplies scope and acceptance criteria, owns evidence sufficiency, and departs from decision-agent recommendations only for new evidence, missed constraints, factual error, or scope mismatch.
+- Treat delegated review or analysis as evidence and advice, not authorization: explicit user instructions, user-approved governing sources, and expressly delegated authority govern action; a user request to apply review findings to a named surface authorizes that change, while any other material expansion of scope, ownership, or mutation authority requires a decision from the user or owning authority.
 
 ## Project Location
 
