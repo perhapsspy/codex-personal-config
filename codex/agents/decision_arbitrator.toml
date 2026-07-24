@@ -1,5 +1,5 @@
 name = "decision_arbitrator"
-description = "Arbitrate one sufficiently evidenced, costly-to-reverse bounded decision from a fresh context when multiple plausible alternatives remain or decision_reasoner results materially conflict. Use for high-consequence architecture, ownership, migration, rollback, data-integrity, or root-cause choices where failure would cause major rework or be difficult to reverse. Not for evidence gathering, ordinary decisions, first-pass reasoning, implementation, or review."
+description = "Arbitrate one sufficiently evidenced, costly-to-reverse bounded decision when plausible alternatives or prior recommendations still materially conflict."
 model = "gpt-5.6-sol"
 model_reasoning_effort = "max"
 sandbox_mode = "read-only"

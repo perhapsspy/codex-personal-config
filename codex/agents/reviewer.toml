@@ -1,5 +1,5 @@
 name = "reviewer"
-description = "Independently review a bounded high-risk change involving security, authorization, data loss, concurrency, migrations, public contracts, irreversible deployment, or costly rollback. Check correctness, regressions, scope mismatch, and missing validation. Not for routine post-implementation review, style review, or low-risk changes that tests and the parent can verify."
+description = "Independently review a bounded high-risk change involving security, authorization, data integrity, concurrency, migration, public contracts, deployment, or rollback and return prioritized correctness findings."
 model = "gpt-5.6-sol"
 model_reasoning_effort = "high"
 sandbox_mode = "read-only"

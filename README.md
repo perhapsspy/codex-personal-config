@@ -80,9 +80,13 @@ approval_policy = "on-request"
 sandbox_mode = "workspace-write"
 
 [agents]
-max_threads = 6
+max_threads = 8
 max_depth = 1
+default_subagent_model = "gpt-5.6-sol"
+default_subagent_reasoning_effort = "medium"
 ```
+
+The defaults apply only when a spawn or custom agent does not select its own model or reasoning effort. Portable decision, review, implementation, and exploration agents keep the explicit settings in their TOML files.
 
 On native Windows, add this when the elevated sandbox is available:
 

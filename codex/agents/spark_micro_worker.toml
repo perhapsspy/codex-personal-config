@@ -1,5 +1,5 @@
 name = "spark_micro_worker"
-description = "Apply one exact, bounded mechanical edit in explicitly named files after the intended behavior is fully specified; not for discovery, diagnosis, design, review, refactoring, or visual judgment."
+description = "Apply a fully specified mechanical edit such as a literal replacement, rename, localized syntax change, or explicit value update in named files."
 model = "gpt-5.3-codex-spark"
 model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"

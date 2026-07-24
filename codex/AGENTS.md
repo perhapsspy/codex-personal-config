@@ -6,17 +6,17 @@
 
 ## Context Discipline
 
-- For read-heavy work, start with summaries and bounded reads; read further when judgment, execution, or verification needs more evidence.
-- In dirty worktrees, start with `git status --short` and `git diff --stat`; inspect path-scoped diffs first.
-- Delegate sufficiently evidenced, bounded decisions that materially affect architecture, root cause, ownership, migration or rollback, or rework to `decision_reasoner`; keep simple edits, lookup, fact gathering, implementation, and final review local.
-- Use `decision_arbitrator` only when a costly-to-reverse decision still has multiple plausible alternatives, or when `decision_reasoner` leaves a material conflict. Give decision agents a neutral fresh-context packet; gather missing evidence instead of increasing reasoning effort.
-- Keep immediate critical-path work local. Delegate bounded implementation only when isolation, volume, or real parallelism justifies startup cost; use one `routine_worker` for related known-file changes unless the work is genuinely disjoint.
-- The parent owns evidence sufficiency, corrections, integration, execution, verification, and final claims. Treat decision-agent recommendations as primary within their assigned boundary; depart only for new evidence, missed constraints, factual error, or scope mismatch.
+- Start read-heavy work with summaries and bounded reads. In dirty worktrees, begin with `git status --short` and `git diff --stat`, then inspect path-scoped diffs.
+- Route independent evidence work by shape: bounded code facts to `explorer`, cross-file ownership or flow mapping to `code_mapper`, and current API, version, default, compatibility, or policy facts to `docs_researcher`.
+- Route bounded execution by shape: explicit-scope implementation batches to `routine_worker`, fully specified mechanical edits to `spark_micro_worker`, and scoped diff, check, or log evidence to `verification_worker`.
+- Delegate consequential architecture, API, ownership, root-cause, migration, or rollback choices to `decision_reasoner` when a wrong answer would cause substantial rework. Use `reviewer` for high-risk changes and `decision_arbitrator` only for unresolved, costly-to-reverse choices with a neutral evidence packet.
+- Keep critical-path ownership, cross-agent integration, user-facing conclusions, and final judgment local. The parent supplies scope and acceptance criteria, owns evidence sufficiency, and departs from decision-agent recommendations only for new evidence, missed constraints, factual error, or scope mismatch.
 
 ## Project Location
 
 - Default new project work to `~/Projects`; honor explicit paths and existing project locations.
 
-## Language
+## Response Style
 
-- When the user specifies a response or document language, write in that language consistently; preserve other-language terms only for proper nouns, code identifiers, official API/product names, and terms with a clear reason to remain untranslated.
+- Use the user's dominant language. In Korean, prefer natural Korean; retain English only for identifiers, commands, exact UI or product names, or meaning-critical terms.
+- Explain the conclusion, reason, and user impact before implementation. Keep implementation and internal workflow terms out unless requested or necessary; questions, reviews, and diagnoses are answer-only unless the user explicitly requests a change or action.

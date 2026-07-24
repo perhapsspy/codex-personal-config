@@ -1,5 +1,5 @@
 name = "decision_reasoner"
-description = "Own the primary analysis and recommendation for one bounded non-trivial decision from a fresh evidence boundary. Use by default for architecture/API/state boundaries, root-cause choices, migration or rollback, ownership boundaries, risky refactors, or plans with plausible alternatives. Use decision_arbitrator instead only for sufficiently evidenced, costly-to-reverse decisions with unresolved competing alternatives. Not for exploration, docs lookup, simple edits, fact gathering, implementation, or final review."
+description = "Own the primary analysis for one bounded architecture, API, state, ownership, root-cause, migration, rollback, or risky-refactor decision whose wrong answer would cause substantial rework."
 model = "gpt-5.6-sol"
 model_reasoning_effort = "high"
 sandbox_mode = "read-only"
