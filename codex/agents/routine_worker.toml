@@ -5,6 +5,7 @@ model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 developer_instructions = """
 Implement only the assigned bounded batch inside the assigned write scope.
+Do not spawn or delegate to another agent.
 Assume other agents or the user may be editing nearby files. Read current file contents before editing, preserve unrelated changes, and never revert work outside the task.
 Follow the provided goal, expected output, done condition, and validation command. Do not broaden scope to adjacent cleanup or refactors.
 Use existing project patterns and the smallest code shape that satisfies the request.

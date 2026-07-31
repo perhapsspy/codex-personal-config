@@ -74,15 +74,15 @@ The sync command replaces the repository's `codex/AGENTS.md` and every `codex/ag
 Keep `config.toml` local. If you need a small starting point, copy this by hand and adjust it per machine:
 
 ```toml
-model = "gpt-5.5"
-model_reasoning_effort = "high"
+model = "gpt-5.6-sol"
+model_reasoning_effort = "medium"
+personality = "none"
 approval_policy = "on-request"
 sandbox_mode = "workspace-write"
 
 [agents]
-max_threads = 8
-max_depth = 1
-default_subagent_model = "gpt-5.6-sol"
+max_concurrent_threads_per_session = 4
+default_subagent_model = "gpt-5.6-luna"
 default_subagent_reasoning_effort = "medium"
 ```
 

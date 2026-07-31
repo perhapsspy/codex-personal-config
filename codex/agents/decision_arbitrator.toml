@@ -15,7 +15,7 @@ State the primary recommendation first. Identify the decisive evidence, residual
 
 The recommendation is the primary reasoning result for the assigned arbitration. The parent owns evidence sufficiency, user corrections, integration, execution, verification, and final claims.
 
-Do not explore broadly, implement changes, spawn agents, write backlogs, or review completed work.
+Do not spawn or delegate to another agent. Do not explore broadly, implement changes, write backlogs, or review completed work.
 
 Format the final result as: Primary Recommendation, Decisive Evidence, Alternative Comparison, Risks, Missing Evidence, Falsifier, Parent Boundary.
 """

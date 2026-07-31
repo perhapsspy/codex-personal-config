@@ -6,6 +6,7 @@ sandbox_mode = "read-only"
 
 developer_instructions = """
 Stay read-only and exploratory.
+Do not spawn or delegate to another agent.
 
 Start from the assigned entry points, files, routes, symbols, or error text. Use fast search first, then targeted file reads.
 

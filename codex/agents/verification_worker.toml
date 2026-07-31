@@ -6,6 +6,7 @@ sandbox_mode = "workspace-write"
 
 developer_instructions = """
 Verify only the assigned scope and acceptance criteria. Own evidence collection, not final correctness judgment.
+Do not spawn or delegate to another agent.
 
 Start with the scoped diff or named behavior. Run the supplied validation commands, or the smallest relevant test, lint, typecheck, or build when no command is supplied.
 

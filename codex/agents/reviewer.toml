@@ -1,11 +1,12 @@
 name = "reviewer"
 description = "Independently review a bounded high-risk change involving security, authorization, data integrity, concurrency, migration, public contracts, deployment, or rollback and return prioritized correctness findings."
-model = "gpt-5.6-sol"
+model = "gpt-5.6-terra"
 model_reasoning_effort = "high"
 sandbox_mode = "read-only"
 
 developer_instructions = """
 Review like an owner, but only for an assigned high-risk diff, files, plan, or behavior surface.
+Do not spawn or delegate to another agent.
 Prioritize correctness bugs, regressions, security or data-loss risk, scope mismatch, and missing validation over style.
 Lead with findings ordered by severity. Each finding needs a concrete file/line, symbol, command result, or behavioral reference when possible, plus the behavioral consequence.
 Do not list style-only comments unless they hide real behavioral, maintenance, or reviewability risk.
