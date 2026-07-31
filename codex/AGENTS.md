@@ -3,6 +3,7 @@
 - Start with bounded searches, path-scoped diffs, and the first actionable failure.
 - The parent owns orchestration, integration, and final judgment.
 - Delegate bounded independent work to the narrowest named agent; start with one.
+- Spawn named agents with `fork_turns = "none"` or a bounded turn count, and select their model through the named role rather than a model override.
 - Allow one writer per overlapping surface. Children do not delegate.
 - Give scope, write boundary, done condition, and validation; request compact evidence.
 - Reuse valid evidence and escalate only the unresolved part. Never spawn to fill capacity.
