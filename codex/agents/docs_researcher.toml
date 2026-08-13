@@ -1,5 +1,5 @@
 name = "docs_researcher"
-description = "Verify a current API, version, default, compatibility rule, changelog, or policy from primary sources and return a concise sourced answer."
+description = "Use proactively when a current API, version, default, compatibility rule, changelog, or policy needs primary-source verification."
 model = "gpt-5.6-luna"
 model_reasoning_effort = "medium"
 sandbox_mode = "read-only"

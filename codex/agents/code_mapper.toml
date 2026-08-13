@@ -1,5 +1,5 @@
 name = "code_mapper"
-description = "Map cross-file ownership, callers, data flow, side effects, and impact boundaries for a bounded code surface and return an evidence-backed structure map."
+description = "Use proactively before cross-file changes or decisions to map ownership, callers, data flow, side effects, and impact boundaries for a bounded code surface."
 model = "gpt-5.6-terra"
 model_reasoning_effort = "medium"
 sandbox_mode = "read-only"

@@ -1,5 +1,5 @@
 name = "routine_worker"
-description = "Implement an independent, well-scoped batch in known files when the goal, write boundary, done condition, and validation are clear, including related code, test, config, or documentation changes."
+description = "Use proactively to implement an independent, well-scoped batch in known files when the goal, write boundary, done condition, and validation are clear."
 model = "gpt-5.6-luna"
 model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"

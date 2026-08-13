@@ -1,5 +1,5 @@
 name = "explorer"
-description = "Locate and explain a bounded code fact, behavior, value source, or call path through read-only exploration and return a short evidence-backed summary."
+description = "Use proactively to answer one bounded code question—fact, behavior, value source, or call path—through read-only exploration with compact evidence."
 model = "gpt-5.6-luna"
 model_reasoning_effort = "medium"
 sandbox_mode = "read-only"
