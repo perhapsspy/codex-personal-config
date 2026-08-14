@@ -82,11 +82,17 @@ sandbox_mode = "workspace-write"
 
 [agents]
 max_concurrent_threads_per_session = 4
-default_subagent_model = "gpt-5.6-luna"
+default_subagent_model = "gpt-5.6-terra"
 default_subagent_reasoning_effort = "medium"
 ```
 
-The defaults apply only when a spawn or custom agent does not select its own model or reasoning effort. Portable decision, review, implementation, and exploration agents keep the explicit settings in their TOML files.
+Keep the defaults on a model supported by the active multi-agent runtime and
+treat them as the safety fallback when an effective role setting is absent or
+not propagated. Portable agents keep their intended model and reasoning
+settings in their TOML files, but the runtime decides whether those choices are
+admitted and applied. A model available for a top-level task may still be
+unavailable under a particular parent's subagent runtime; use an explicitly
+selected user-visible task when the work requires that model.
 
 On native Windows, add this when the elevated sandbox is available:
 
