@@ -1,5 +1,5 @@
 name = "reviewer"
-description = "Use proactively for an independent correctness review of a bounded high-risk change involving security, authorization, data integrity, concurrency, migration, public contracts, deployment, or rollback."
+description = "Independently review a bounded high-risk change for correctness, security, data, concurrency, migration, contracts, deployment, or rollback."
 model = "gpt-5.6-terra"
 model_reasoning_effort = "high"
 sandbox_mode = "read-only"

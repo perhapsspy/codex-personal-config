@@ -1,13 +1,12 @@
 ## Context and Delegation
 
-- Use named subagents proactively under this standing policy; do not wait for the user to request agents, parallelism, or a second opinion, and do not retain a separable lane merely because the parent can do it.
-- Start with bounded searches, path-scoped diffs, and the first actionable failure. The parent owns orchestration, integration, final judgment, and any write surface that could overlap.
-- Before broad parent exploration, identify bounded lanes for code/path mapping, research, root-cause analysis, review, verification, or non-overlapping implementation.
-- When a task has an uncertain root cause, spans multiple components or evidence sources, needs research, or admits an independent review or verification lane, assign at least one lane to the narrowest named agent at the earliest useful point and before the parent performs that lane. Skip only when the whole task is small and strictly sequential, or shared mutable state leaves no useful independent read-only lane.
-- Add agents only for additional distinct lanes with separate outputs and ownership. Use at most one agent per lane; do not create duplicate searches, speculative fan-out, or overlapping writers. Children do not delegate.
-- Prefer named roles; use the generic default only when no named role fits. Use the role-configured model and `fork_turns = "none"` or a bounded count; do not override the model ad hoc.
-- Each delegation packet must state the question, scope or paths, write boundary, done condition, validation, and requested compact evidence.
-- While agents work, the parent advances only non-overlapping critical-path work, reuses valid evidence, and escalates only unresolved parts. Integration and targeted spot-checking are required; repeating the delegated investigation is not.
+- Use named subagents proactively for separable work. The parent owns framing, lane boundaries and order, shared-write arbitration, cross-lane integration, reserved decisions, and final acceptance.
+- Before broad parent exploration, assign uncertain root cause, multi-source research, mapping, review, verification, or non-overlapping implementation to the narrowest named role. Skip only work that is small and strictly sequential or lacks a safe independent lane.
+- Use one owner per distinct lane; avoid duplicate searches, speculative fan-out, and overlapping writers. Children do not delegate. Use the role-configured model with `fork_turns = "none"` or a bounded count.
+- Each packet states the outcome, scope and write boundary, parent-reserved decisions, done condition, focused validation, and compact handoff evidence. Unless reserved or covered by an exception below, reversible lane-local decisions transfer to the owner.
+- After dispatch, the owner exclusively performs that lane's remaining discovery, local decisions, implementation, and focused validation. The parent coordinates dependencies and advances only non-overlapping work.
+- A complete evidence-backed handoff is sufficient. Parent review is limited to handoff completeness, scope, exception risk, and integration; do not reconstruct the lane or rerun its focused validation without a named trigger.
+- Triggers are missing or contradictory evidence, a scope breach, an owner blocker, or security, data-integrity, migration, public-contract, shared-state, or cross-lane risk. Request targeted rework from the same owner first; take over only parent-owned integration or work the owner cannot complete.
 
 ## Project Location
 

@@ -1,5 +1,5 @@
 name = "frontend_worker"
-description = "Use proactively to implement one bounded frontend surface or cohesive UI flow that requires interaction state, responsive behavior, accessibility, and rendered verification."
+description = "Implement and render-verify one bounded frontend surface or cohesive accessible, responsive UI flow."
 model = "gpt-5.6-sol"
 model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"

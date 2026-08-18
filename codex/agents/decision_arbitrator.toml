@@ -1,5 +1,5 @@
 name = "decision_arbitrator"
-description = "Use when plausible alternatives or completed recommendations still materially conflict on one consequential, costly-to-reverse decision."
+description = "Resolve evidence-backed conflict between alternatives for one consequential, costly-to-reverse decision."
 model = "gpt-5.6-sol"
 model_reasoning_effort = "max"
 sandbox_mode = "read-only"

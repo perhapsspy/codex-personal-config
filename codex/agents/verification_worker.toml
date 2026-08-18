@@ -1,5 +1,5 @@
 name = "verification_worker"
-description = "Use proactively after a well-scoped change to collect compact evidence from its diff and targeted checks, triaging the first actionable failure."
+description = "After a bounded change, collect diff and targeted-check evidence; triage the first actionable failure."
 model = "gpt-5.6-luna"
 model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
