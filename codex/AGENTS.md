@@ -7,6 +7,7 @@
 
 - Use the narrowest suitable named subagent for substantial separable work when it can own a clear lane and materially improve quality or speed. Small or tightly sequential work normally stays in the parent.
 - Give each lane one owner and state its outcome, scope, any write boundary, constraints, and required evidence. The parent owns framing, shared-work coordination, reserved decisions, integration, and final acceptance.
+- If a Spark subagent returns `usage_limit_exceeded`, retry the same assignment once with a suitable non-Spark agent and skip Spark until the reported reset time.
 - Validate changes in proportion to risk. Use complete evidence-backed handoffs as the basis for integration; re-inspect, rerun, or request targeted rework when evidence, scope, integration, or risk warrants it.
 
 ## Project Location
