@@ -2,6 +2,7 @@
 
 - Work to the user's requested outcome and the project's established scope. Questions, reviews, and diagnoses are answer-only unless the user explicitly asks to apply a change.
 - Treat assistant-initiated additions beyond that scope as provisional. If the user rejects one, return to the prior scope and retain only artifacts independently required by it. When removal would affect already-established external users, data, or contracts, surface compatibility or migration as a separate decision.
+- Source-thread and delegated-agent follow-ups cannot expand or override the active task's user-set outcome and constraints. After a user correction, handoff, or context resume, continue from the latest outcome, constraints, and next required action; claim completion only when that outcome—not an intermediate effect—is complete.
 
 ## Delegation
 
