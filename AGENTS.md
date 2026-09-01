@@ -13,4 +13,10 @@
 
 ## Validation
 
-- When changing agent files, verify each TOML has `name`, `description`, and `developer_instructions`; after pulling on a machine, run the install command from `README.md`.
+- Run `python3 -m unittest discover -s tests -v` after changing shared guidance or agent files.
+- When installable files change, run the installer from `README.md` and confirm the repository source matches the installed runtime.
+
+## Completion
+
+- For completed user-requested changes in this repository, after validation and a scoped diff review, commit the intended files and push the current branch to its configured upstream by default unless the user asks not to.
+- Stage only intended paths. Do not include unrelated existing changes, switch branches, rewrite history, or force-push. If the change cannot be isolated safely or the upstream push fails, stop and report the exact blocker.

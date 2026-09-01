@@ -64,10 +64,18 @@ The sync command replaces the repository's `codex/AGENTS.md` and every `codex/ag
 ## Shared configuration flow
 
 1. Adjust the shared guidance or agents on one machine.
-2. Run the sync command above.
-3. Review `git diff`; verify each TOML has `name`, `description`, and `developer_instructions`.
-4. Commit and push this repository.
-5. On another machine, pull and run the installer.
+2. Run the sync command above when the source change began in the local Codex home.
+3. Run the repository validation:
+
+   ```bash
+   python3 -m unittest discover -s tests -v
+   ```
+
+4. Review `git diff`.
+5. Commit and push this repository.
+6. On another machine, pull and run the installer.
+
+The validation parses every agent TOML, checks its required fields, and preserves the decision-authority contract and representative review dispositions.
 
 ## Machine-local configuration
 
