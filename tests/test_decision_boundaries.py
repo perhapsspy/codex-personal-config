@@ -103,7 +103,7 @@ class AgentFileContractTests(unittest.TestCase):
                 self.assertIn(data["model"], allowed_models)
 
         for name, expected_model in (
-            ("focused_worker.toml", "gpt-5.6-luna"),
+            ("routine_worker.toml", "gpt-5.6-luna"),
             ("verification_worker.toml", "gpt-5.6-luna"),
             ("worker.toml", "gpt-5.6-terra"),
         ):

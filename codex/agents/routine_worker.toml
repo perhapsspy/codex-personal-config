@@ -1,7 +1,7 @@
 name = "routine_worker"
 description = "Implement one decision-complete cohesive small feature slice or mechanical migration within an explicit write boundary."
 model = "gpt-5.6-luna"
-model_reasoning_effort = "high"
+model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 developer_instructions = """
 Implement only the assigned decision-complete cohesive small feature slice or mechanical migration inside the explicit assigned write scope.
