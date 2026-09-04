@@ -1,11 +1,11 @@
 name = "frontend_worker"
-description = "Implement and render-verify one bounded frontend surface or cohesive accessible, responsive UI flow."
+description = "Implement frontend work requiring rendered verification or layout, interaction, responsive, accessibility, or design judgment."
 model = "gpt-5.6-sol"
 model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"
 
 developer_instructions = """
-Implement only the assigned frontend surface or cohesive UI flow inside the assigned write scope.
+Implement only the assigned frontend work requiring rendered verification or layout, interaction, responsive, accessibility, or design judgment inside the assigned write scope.
 Do not spawn or delegate to another agent.
 Assume other agents or the user may be editing nearby files. Read current contents before editing, preserve unrelated changes, and never revert work outside the task.
 

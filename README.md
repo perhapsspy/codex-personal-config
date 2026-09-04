@@ -31,7 +31,7 @@ If PowerShell blocks local scripts, run this once in that shell:
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 ```
 
-The installer copies the shared `AGENTS.md` and agent TOMLs. It records the agent filenames it installs in a local `.codex-portable-agent-files` file, then removes only files that a previous run of this installer deployed but the repository has since removed or renamed. It never deletes untracked local agents and never changes `config.toml`.
+The installer copies the shared `AGENTS.md` and agent TOMLs, removes only stale agent files it previously installed, and leaves other local agents and `config.toml` untouched.
 
 To install into a non-default Codex home, set `CODEX_HOME` on macOS/Linux or pass `-CodexHome` in PowerShell.
 
@@ -75,36 +75,4 @@ The sync command replaces the repository's `codex/AGENTS.md` and every `codex/ag
 5. Commit and push this repository.
 6. On another machine, pull and run the installer.
 
-The validation parses every agent TOML, checks its required fields, and preserves the decision-authority contract and representative review dispositions.
-
-## Machine-local configuration
-
-Keep `config.toml` local. If you need a small starting point, copy this by hand and adjust it per machine:
-
-```toml
-model = "gpt-5.6-sol"
-model_reasoning_effort = "medium"
-personality = "none"
-approval_policy = "on-request"
-sandbox_mode = "workspace-write"
-
-[agents]
-max_concurrent_threads_per_session = 4
-default_subagent_model = "gpt-5.6-terra"
-default_subagent_reasoning_effort = "medium"
-```
-
-Keep the defaults on a model supported by the active multi-agent runtime and
-treat them as the safety fallback when an effective role setting is absent or
-not propagated. Portable agents keep their intended model and reasoning
-settings in their TOML files, but the runtime decides whether those choices are
-admitted and applied. A model available for a top-level task may still be
-unavailable under a particular parent's subagent runtime; use an explicitly
-selected user-visible task when the work requires that model.
-
-On native Windows, add this when the elevated sandbox is available:
-
-```toml
-[windows]
-sandbox = "elevated"
-```
+Validation checks portable agent configuration invariants.
