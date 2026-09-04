@@ -13,9 +13,10 @@
 
 ## Delegation
 
-- Use the narrowest suitable named subagent for substantial separable work when it can own a clear lane and materially improve quality or speed. Small or tightly sequential work normally stays in the parent.
-- Give each lane one owner and state its outcome, scope, any write boundary, constraints, and required evidence. The parent owns framing, shared-work coordination, reserved decisions, integration, and final acceptance.
-- If a Spark subagent returns `usage_limit_exceeded`, retry the same assignment once with a suitable non-Spark agent and skip Spark until the reported reset time.
+- After only enough parent inspection to frame the task, assign every concrete substantial safely separable lane—including broad mapping, implementation, and lane-local validation—to exactly one least-expensive capable named subagent before the parent performs it. Use the narrowest suitable named role.
+- Make substantial practical work default to subagents. The parent may keep work only when it is both small and strictly sequential, no safe independent lane exists, or delegation is unavailable; briefly justify substantial-looking exceptions. Do not split coherent lanes merely to reach a cheaper model or create decoy delegation, duplicate parent work, or speculative fan-out.
+- Give each lane one owner and state its outcome, scope, any write boundary, constraints, and required evidence. The parent owns framing, shared-work coordination, reserved decisions, cross-lane integration, and final acceptance. Do not repeat completed lane work. Steer or reassign an incomplete lane before taking it over.
+- Send each child a compact self-contained packet and use its role-configured model. Use the built-in `worker` fallback when no narrower custom role fits. Default child context to `fork_turns = "none"`; use the smallest explicit bounded history only when indispensable. Children do not delegate; run lanes concurrently only when independent.
 - Validate changes in proportion to risk. Use complete evidence-backed handoffs as the basis for integration; re-inspect, rerun, or request targeted rework when evidence, scope, integration, or risk warrants it.
 
 ## Project Location

@@ -70,6 +70,70 @@ class AgentFileContractTests(unittest.TestCase):
             arbitrator,
         )
 
+    def test_delegation_guidance_is_cost_weighted_and_nonduplicative(self):
+        guidance = AGENTS_PATH.read_text(encoding="utf-8")
+
+        for phrase in (
+            "substantial practical work default to subagents",
+            "exactly one least-expensive capable named subagent",
+            "broad mapping, implementation, and lane-local validation",
+            "before the parent performs it",
+            "no safe independent lane exists",
+            "delegation is unavailable",
+            "Do not split coherent lanes merely to reach a cheaper model",
+            "decoy delegation, duplicate parent work, or speculative fan-out",
+            "Do not repeat completed lane work",
+            "Steer or reassign an incomplete lane before taking it over",
+            "compact self-contained packet",
+            "role-configured model",
+            "built-in `worker` fallback",
+            'fork_turns = "none"',
+            "Children do not delegate",
+        ):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, guidance)
+
+    def test_agent_models_use_allowlist_and_worker_contracts(self):
+        allowed_models = {"gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"}
+        agent_paths = sorted(AGENT_ROOT.glob("*.toml"))
+        self.assertTrue(agent_paths)
+        for agent_path in agent_paths:
+            with self.subTest(agent=agent_path.name):
+                data = tomllib.loads(agent_path.read_text(encoding="utf-8"))
+                self.assertIn(data["model"], allowed_models)
+
+        for name, expected_model in (
+            ("focused_worker.toml", "gpt-5.6-luna"),
+            ("verification_worker.toml", "gpt-5.6-luna"),
+            ("worker.toml", "gpt-5.6-terra"),
+        ):
+            with self.subTest(agent=name):
+                data = tomllib.loads((AGENT_ROOT / name).read_text(encoding="utf-8"))
+                self.assertEqual(data["model"], expected_model)
+                self.assertEqual(data["model_reasoning_effort"], "medium")
+
+        worker = tomllib.loads((AGENT_ROOT / "worker.toml").read_text(encoding="utf-8"))
+        self.assertEqual(worker["name"], "worker")
+        self.assertIn("substantial cohesive repository lane", worker["description"])
+        self.assertEqual(worker["model"], "gpt-5.6-terra")
+        self.assertEqual(worker["model_reasoning_effort"], "medium")
+        self.assertEqual(worker["sandbox_mode"], "workspace-write")
+        for marker in (
+            "substantial cohesive repository lane",
+            "bounded multi-file implementation and focused validation lane",
+            "no narrower custom role fits",
+            "Do not spawn or delegate",
+            "explicitly assigned write boundary",
+            "preserve unrelated edits",
+            "discovery, implementation, and focused validation",
+            "product, architecture, API, schema, security, permission, or public-contract decisions",
+            "Escalate material semantic decisions",
+            "scoped diff",
+            "Changes, Validation, Remaining Risk",
+        ):
+            with self.subTest(marker=marker):
+                self.assertIn(marker, worker["developer_instructions"])
+
     def _instructions(self, name):
         data = tomllib.loads((AGENT_ROOT / name).read_text(encoding="utf-8"))
         return data["developer_instructions"]
