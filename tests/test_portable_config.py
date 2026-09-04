@@ -18,8 +18,7 @@ ALLOWED_REASONING_EFFORTS = {"medium", "high", "xhigh", "max"}
 ALLOWED_SANDBOX_MODES = {"read-only", "workspace-write"}
 ROLE_CONTRACTS = {
     "code_mapper": ("gpt-5.6-terra", "medium"),
-    "decision_arbitrator": ("gpt-5.6-sol", "max"),
-    "decision_reasoner": ("gpt-5.6-sol", "xhigh"),
+    "decision_reviewer": ("gpt-5.6-sol", "high"),
     "docs_researcher": ("gpt-5.6-luna", "high"),
     "explorer": ("gpt-5.6-luna", "high"),
     "frontend_worker": ("gpt-5.6-sol", "high"),

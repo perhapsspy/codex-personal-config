@@ -13,11 +13,12 @@
 
 ## Delegation
 
-- After only enough parent inspection to frame the task, assign every concrete substantial safely separable lane—including broad mapping, implementation, and lane-local validation—to exactly one least-expensive capable named subagent before the parent performs it. Use the narrowest suitable named role.
-- Make substantial practical work default to subagents. The parent may keep work only when it is both small and strictly sequential, no safe independent lane exists, or delegation is unavailable; briefly justify substantial-looking exceptions. Do not split coherent lanes merely to reach a cheaper model or create decoy delegation, duplicate parent work, or speculative fan-out.
-- Give each lane one owner and state its outcome, scope, any write boundary, constraints, and required evidence. The parent owns framing, shared-work coordination, reserved decisions, cross-lane integration, and final acceptance. Do not repeat completed lane work. Steer or reassign an incomplete lane before taking it over.
-- Send each child a compact self-contained packet and use its role-configured model. Use the `worker` fallback when no narrower custom role fits. Default child context to `fork_turns = "none"`; use the smallest explicit bounded history only when indispensable. Children do not delegate; run lanes concurrently only when independent.
-- Validate changes in proportion to risk. Use complete evidence-backed handoffs as the basis for integration; re-inspect, rerun, or request targeted rework when evidence, scope, integration, or risk warrants it.
+- The parent owns user intent, scope, tentative and final product decisions, the smallest coherent solution, cross-lane integration, and acceptance.
+- Delegate a safely separable substantial practical implementation or validation lane. Delegate other concrete lanes only when they materially reduce noisy context, enable real parallel work, or benefit from a specialized role or tool surface; keep tightly coupled discovery, implementation, failure analysis, and validation with one owner.
+- Choose the correct owner and coherent boundary before model cost, then use the least-expensive capable named role. Do not split or duplicate work only for cost. Small or tightly sequential work stays with the parent; substantial coherent work may stay there when splitting weakens the intent, state, or feedback loop.
+- The parent forms tentative consequential decisions. Use `decision_reviewer` at most once when an independent evidence-based challenge could change the direction. It tests the supplied direction and returns the smallest correction; it does not originate a broad alternative design or decide for the parent. Do not chain judgment agents. Invoke any external reasoner only on a fresh explicit user request each time; materially new local evidence may justify asking the user, never automatic invocation.
+- Give each child a compact self-contained packet. Default `fork_turns` to `"none"`; use the smallest bounded history only when needed. Children do not delegate; parallelize only independent lanes; do not repeat completed child work.
+- Validate in proportion to risk; recheck only when integration, risk, or evidence warrants it.
 
 ## Project Location
 
