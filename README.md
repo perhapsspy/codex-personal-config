@@ -81,7 +81,7 @@ Validation checks portable agent configuration invariants.
 
 Use `routine_worker` for a decision-complete local slice. Use `worker` for a substantial cohesive lane, including connected state or recovery behavior when its governing contracts are settled and its write boundary covers the path. Keep unresolved cross-owner decisions with the parent. The role TOMLs own model assignments; the shared `AGENTS.md` owns delegation and acceptance rules.
 
-At a review boundary, reuse a reviewer when its retained contract knowledge and valid findings reduce reconstruction. Start a fresh bounded review when that advantage is outweighed by accumulated irrelevant context or repeated reorientation. Preserve required independent review and pass only the current contract, changed surface, reusable evidence, and unresolved risks. Apply the `codex-token-discipline` skill for bounded reads, output, and usage audits.
+The installed shared guidance includes reviewer reuse decisions. Apply the `codex-token-discipline` skill for bounded reads, output, and usage audits.
 
 ## Machine-local configuration
 

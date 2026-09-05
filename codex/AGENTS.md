@@ -19,6 +19,7 @@
 - ChatGPT Pro consultation through `chatgpt-pro-reasoner` is authorized without a fresh request when difficult unresolved reasoning could change the next action. Use it directly when needed; consultation is optional and the parent retains decision authority. Do not duplicate the same judgment through Pro and `decision_reviewer` or chain judgment agents.
 - Give children self-contained packets with scope, done condition, validation, compact output, and only indispensable history. They do not delegate; parallelize only independent lanes.
 - Validate in proportion to changed behavior and risk. Keep the author responsible through relevant execution and in-scope failure repair; hand off evidence and explicit gaps. Reuse valid evidence and request targeted rework when scope, integration, or risk warrants it.
+- At review boundaries, weigh retained contract knowledge against irrelevant context and repeated reorientation when choosing reviewer reuse or a fresh bounded review; preserve required independent review and reusable evidence.
 
 ## Response
 
