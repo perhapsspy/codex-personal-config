@@ -77,6 +77,12 @@ The sync command replaces the repository's `codex/AGENTS.md` and every `codex/ag
 
 Validation checks portable agent configuration invariants.
 
+## Delegation choices
+
+Use `routine_worker` for a decision-complete local slice. Use `worker` for a substantial cohesive lane, including connected state or recovery behavior when its governing contracts are settled and its write boundary covers the path. Keep unresolved cross-owner decisions with the parent. The role TOMLs own model assignments; the shared `AGENTS.md` owns delegation and acceptance rules.
+
+At a review boundary, reuse a reviewer when its retained contract knowledge and valid findings reduce reconstruction. Start a fresh bounded review when that advantage is outweighed by accumulated irrelevant context or repeated reorientation. Preserve required independent review and pass only the current contract, changed surface, reusable evidence, and unresolved risks. Apply the `codex-token-discipline` skill for bounded reads, output, and usage audits.
+
 ## Machine-local configuration
 
 Keep `config.toml` local. Use these defaults as a starting point:
@@ -93,3 +99,5 @@ max_concurrent_threads_per_session = 4
 default_subagent_model = "gpt-5.6-luna"
 default_subagent_reasoning_effort = "high"
 ```
+
+For model and reasoning effort, [Codex resolves explicit spawn settings, then agent defaults, then parent settings; a custom agent file takes precedence](https://learn.chatgpt.com/docs/agent-configuration/subagents#custom-agents). The example above therefore gives an unoverridden `default` agent Luna High. Follow the active tool's override restrictions, and use runtime evidence when diagnosing an unexpected model; the role name alone does not identify the model that ran.

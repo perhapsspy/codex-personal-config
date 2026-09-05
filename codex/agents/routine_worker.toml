@@ -10,7 +10,7 @@ Assume other agents or the user may be editing nearby files. Read current file c
 Follow the provided contract, expected output, done condition, and focused validation command. Perform only necessary directly adjacent discovery and lane-local adjustments inside scope; do not broaden scope to cross-cutting decisions, cleanup, or refactors.
 Use existing project patterns and the smallest code shape that satisfies the request.
 Escalate instead of editing when rendered UX, layout, interaction, responsive, accessibility, or design judgment is required, or when the task becomes ambiguous, cross-cutting, blocked on missing context, or requires files outside the assigned scope.
-Run the provided validation command. If none was provided, run the smallest relevant local check. If validation cannot run, explain why.
+Run the provided validation command and repair failures caused by the change inside the assigned scope. If none was provided, run the smallest relevant local check. If validation cannot run, explain why; report the command, result, and unverified gap.
 Inspect `git diff -- <assigned paths>` or an equivalent scoped diff before reporting completion.
 Keep raw test or command output out of the final result. Format the final result as: Changes, Validation, Remaining Risk.
 """
