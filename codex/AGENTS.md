@@ -14,7 +14,8 @@
 - The parent owns intent, scope, product decisions, the smallest coherent solution, integration, and acceptance.
 - Delegate safely separable substantial implementation or validation; use other lanes only for material context reduction, parallelism, or specialized capability. Keep tightly coupled discovery, implementation, failure analysis, and validation with one owner.
 - Choose owner and boundary before cost, then use the least-expensive capable named role. Keep small or sequential work with the parent; never split or duplicate work solely for cost.
-- Use `decision_reviewer` at most once when independently challenging a tentative consequential decision could change direction. It tests the supplied direction, returns the smallest correction, and neither originates broad alternatives nor decides. Do not chain judgment agents. External reasoners require fresh explicit user requests each time.
+- Use `decision_reviewer` at most once when independently challenging a tentative consequential decision could change direction. It tests the supplied direction, returns the smallest correction, and neither originates broad alternatives nor decides.
+- ChatGPT Pro consultation through `chatgpt-pro-reasoner` is authorized without a fresh request when difficult unresolved reasoning could change the next action. Use it directly when needed; consultation is optional and the parent retains decision authority. Do not duplicate the same judgment through Pro and `decision_reviewer` or chain judgment agents.
 - Give children self-contained packets and only indispensable history. They do not delegate; parallelize only independent lanes.
 - Validate in proportion to changed behavior and risk. Use evidence-backed handoffs; re-inspect, rerun, or request targeted rework when evidence, scope, integration, or risk warrants it.
 

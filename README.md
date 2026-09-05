@@ -76,3 +76,20 @@ The sync command replaces the repository's `codex/AGENTS.md` and every `codex/ag
 6. On another machine, pull and run the installer.
 
 Validation checks portable agent configuration invariants.
+
+## Machine-local configuration
+
+Keep `config.toml` local. Use these defaults as a starting point:
+
+```toml
+model = "gpt-6-astra"
+model_reasoning_effort = "medium"
+personality = "pragmatic"
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+
+[agents]
+max_concurrent_threads_per_session = 4
+default_subagent_model = "gpt-5.6-luna"
+default_subagent_reasoning_effort = "high"
+```

@@ -13,7 +13,7 @@ REQUIRED_STRING_FIELDS = (
     "sandbox_mode",
     "developer_instructions",
 )
-ALLOWED_MODELS = {"gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"}
+ALLOWED_MODELS = {"gpt-6-astra", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"}
 ALLOWED_REASONING_EFFORTS = {"medium", "high", "xhigh", "max"}
 ALLOWED_SANDBOX_MODES = {"read-only", "workspace-write"}
 ROLE_CONTRACTS = {
@@ -21,7 +21,7 @@ ROLE_CONTRACTS = {
     "decision_reviewer": ("gpt-5.6-sol", "high"),
     "docs_researcher": ("gpt-5.6-luna", "high"),
     "explorer": ("gpt-5.6-luna", "high"),
-    "frontend_worker": ("gpt-5.6-sol", "high"),
+    "frontend_worker": ("gpt-6-astra", "high"),
     "reviewer": ("gpt-5.6-sol", "high"),
     "routine_worker": ("gpt-5.6-luna", "medium"),
     "verification_worker": ("gpt-5.6-luna", "medium"),

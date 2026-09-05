@@ -18,5 +18,5 @@
 
 ## Completion
 
-- For completed user-requested changes in this repository, after validation and a scoped diff review, commit the intended files and push the current branch to its configured upstream by default unless the user asks not to.
+- For completed user-requested changes in this repository, after validation and a scoped diff review, commit the intended files and push the current branch to its configured upstream without asking again unless the user requests local or uncommitted changes.
 - Stage only intended paths. Do not include unrelated existing changes, switch branches, rewrite history, or force-push. If the change cannot be isolated safely or the upstream push fails, stop and report the exact blocker.
