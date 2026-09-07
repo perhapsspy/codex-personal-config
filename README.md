@@ -89,7 +89,7 @@ Keep `config.toml` local. Use these defaults as a starting point:
 
 ```toml
 model = "gpt-6-astra"
-model_reasoning_effort = "medium"
+model_reasoning_effort = "low"
 personality = "pragmatic"
 approval_policy = "on-request"
 sandbox_mode = "workspace-write"
