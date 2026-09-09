@@ -17,7 +17,7 @@ ALLOWED_MODELS = {"gpt-6-astra", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"}
 ALLOWED_REASONING_EFFORTS = {"medium", "high", "xhigh", "max"}
 ALLOWED_SANDBOX_MODES = {"read-only", "workspace-write"}
 ROLE_CONTRACTS = {
-    "code_mapper": ("gpt-5.6-terra", "medium"),
+    "code_mapper": ("gpt-5.6-luna", "max"),
     "decision_reviewer": ("gpt-5.6-sol", "high"),
     "docs_researcher": ("gpt-5.6-luna", "high"),
     "explorer": ("gpt-5.6-luna", "high"),
@@ -25,7 +25,7 @@ ROLE_CONTRACTS = {
     "reviewer": ("gpt-5.6-sol", "high"),
     "routine_worker": ("gpt-5.6-luna", "medium"),
     "verification_worker": ("gpt-5.6-luna", "medium"),
-    "worker": ("gpt-5.6-terra", "medium"),
+    "worker": ("gpt-5.6-luna", "max"),
 }
 
 

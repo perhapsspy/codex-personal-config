@@ -1,7 +1,7 @@
 name = "worker"
 description = "Own one substantial cohesive repository implementation outcome from investigation through validation and in-scope recovery when no narrower custom role fits."
-model = "gpt-5.6-terra"
-model_reasoning_effort = "medium"
+model = "gpt-5.6-luna"
+model_reasoning_effort = "max"
 sandbox_mode = "workspace-write"
 
 developer_instructions = """
