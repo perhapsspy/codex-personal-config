@@ -1,11 +1,10 @@
 # Codex Personal Config
 
-Portable personal Codex guidance and custom support-agent definitions for `perhapsspy`.
+Portable personal Codex startup guidance for `perhapsspy`.
 
 This repository is the shared source for files that should follow you between machines:
 
 - `codex/AGENTS.md` -> `~/.codex/AGENTS.md`
-- `codex/agents/*.toml` -> `~/.codex/agents/*.toml`
 
 Do not sync the whole `~/.codex` directory. Auth, sessions, caches, memories, plugin state, app-generated paths, and project trust lists stay local. `config.toml` is also machine-local because it commonly contains platform paths and device-specific choices.
 
@@ -31,7 +30,7 @@ If PowerShell blocks local scripts, run this once in that shell:
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 ```
 
-The installer copies the shared `AGENTS.md` and agent TOMLs, removes only stale agent files it previously installed, and leaves other local agents and `config.toml` untouched.
+The installer copies the shared `AGENTS.md`, removes custom agents previously installed by this repository, and leaves other local agents and `config.toml` untouched.
 
 To install into a non-default Codex home, set `CODEX_HOME` on macOS/Linux or pass `-CodexHome` in PowerShell.
 
@@ -43,7 +42,7 @@ CODEX_HOME="$HOME/.codex-test" ./scripts/install.sh
 .\scripts\install.ps1 -CodexHome "$HOME\.codex-test"
 ```
 
-## Promote local shared settings into this repository
+## Promote local shared guidance into this repository
 
 When you intentionally update the shared settings on a machine, run the sync command from this repository.
 
@@ -59,11 +58,11 @@ Windows PowerShell:
 .\scripts\sync-from-local.ps1
 ```
 
-The sync command replaces the repository's `codex/AGENTS.md` and every `codex/agents/*.toml` with the current local counterparts. Keep experiments or machine-only agents out of `~/.codex/agents` before running it, then inspect `git diff`, validate, commit, and push. It does not read or copy `config.toml`.
+The sync command replaces the repository's `codex/AGENTS.md` with the current local counterpart. It does not read or copy custom agents or `config.toml`.
 
 ## Shared configuration flow
 
-1. Adjust the shared guidance or agents on one machine.
+1. Adjust the shared guidance on one machine.
 2. Run the sync command above when the source change began in the local Codex home.
 3. Run the repository validation:
 
@@ -75,13 +74,7 @@ The sync command replaces the repository's `codex/AGENTS.md` and every `codex/ag
 5. Commit and push this repository.
 6. On another machine, pull and run the installer.
 
-Validation checks portable agent configuration invariants.
-
-## Delegation choices
-
-Use `routine_worker` for a decision-complete local slice. Use `worker` for a substantial cohesive lane, including connected state or recovery behavior when its governing contracts are settled and its write boundary covers the path. Keep unresolved cross-owner decisions with the parent. The role TOMLs own model assignments; the shared `AGENTS.md` owns delegation and acceptance rules.
-
-The installed shared guidance includes reviewer reuse decisions. Apply the `codex-token-discipline` skill for bounded reads, output, and usage audits.
+Validation checks the portable guidance and installer cleanup contract.
 
 ## Machine-local configuration
 
@@ -93,11 +86,4 @@ model_reasoning_effort = "low"
 personality = "pragmatic"
 approval_policy = "on-request"
 sandbox_mode = "workspace-write"
-
-[agents]
-max_concurrent_threads_per_session = 4
-default_subagent_model = "gpt-5.6-luna"
-default_subagent_reasoning_effort = "high"
 ```
-
-For model and reasoning effort, [Codex resolves explicit spawn settings, then agent defaults, then parent settings; a custom agent file takes precedence](https://learn.chatgpt.com/docs/agent-configuration/subagents#custom-agents). The example above therefore gives an unoverridden `default` agent Luna High. Follow the active tool's override restrictions, and use runtime evidence when diagnosing an unexpected model; the role name alone does not identify the model that ran.

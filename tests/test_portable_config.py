@@ -1,66 +1,65 @@
-import tomllib
+import os
+import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-AGENT_ROOT = REPO_ROOT / "codex" / "agents"
-REQUIRED_STRING_FIELDS = (
-    "name",
-    "description",
-    "model",
-    "model_reasoning_effort",
-    "sandbox_mode",
-    "developer_instructions",
-)
-ALLOWED_MODELS = {"gpt-6-astra", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"}
-ALLOWED_REASONING_EFFORTS = {"medium", "high", "xhigh", "max"}
-ALLOWED_SANDBOX_MODES = {"read-only", "workspace-write"}
-ROLE_CONTRACTS = {
-    "code_mapper": ("gpt-5.6-luna", "max"),
-    "decision_reviewer": ("gpt-5.6-sol", "high"),
-    "docs_researcher": ("gpt-5.6-luna", "high"),
-    "explorer": ("gpt-5.6-luna", "high"),
-    "frontend_worker": ("gpt-6-astra", "high"),
-    "reviewer": ("gpt-5.6-sol", "high"),
-    "routine_worker": ("gpt-5.6-luna", "medium"),
-    "verification_worker": ("gpt-5.6-luna", "medium"),
-    "worker": ("gpt-5.6-luna", "max"),
-}
+CODEX_ROOT = REPO_ROOT / "codex"
+SHARED_GUIDANCE = CODEX_ROOT / "AGENTS.md"
 
 
 class PortableConfigTests(unittest.TestCase):
-    def test_agent_tomls_have_portable_structure(self):
-        agent_paths = sorted(AGENT_ROOT.glob("*.toml"))
-        self.assertTrue(agent_paths)
-        names = set()
+    def test_shared_guidance_is_the_only_installable_config(self):
+        installed_files = sorted(
+            path.relative_to(CODEX_ROOT)
+            for path in CODEX_ROOT.rglob("*")
+            if path.is_file()
+        )
+        self.assertEqual(installed_files, [Path("AGENTS.md")])
 
-        for agent_path in agent_paths:
-            with self.subTest(agent=agent_path.name):
-                data = tomllib.loads(agent_path.read_text(encoding="utf-8"))
-                for field in REQUIRED_STRING_FIELDS:
-                    self.assertIsInstance(data.get(field), str)
-                    self.assertTrue(data[field].strip())
+    def test_readme_has_no_custom_agent_defaults(self):
+        readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertNotIn("codex/agents", readme)
+        self.assertNotIn("[agents]", readme)
+        self.assertNotIn("default_subagent_", readme)
 
-                self.assertEqual(agent_path.stem, data["name"])
-                self.assertNotIn(data["name"], names)
-                names.add(data["name"])
-                self.assertIn(data["model"], ALLOWED_MODELS)
-                self.assertIn(
-                    data["model_reasoning_effort"], ALLOWED_REASONING_EFFORTS
-                )
-                self.assertIn(data["sandbox_mode"], ALLOWED_SANDBOX_MODES)
+    @unittest.skipUnless(os.name == "posix", "requires a POSIX shell")
+    def test_installer_removes_only_previously_managed_agents(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            codex_home = Path(temp_dir) / ".codex"
+            agent_root = codex_home / "agents"
+            agent_root.mkdir(parents=True)
 
-        self.assertEqual(names, set(ROLE_CONTRACTS))
+            managed_agent = agent_root / "worker.toml"
+            unmanaged_agent = agent_root / "personal.toml"
+            managed_agent.write_text("managed\n", encoding="utf-8")
+            unmanaged_agent.write_text("personal\n", encoding="utf-8")
+            state_path = codex_home / ".portable-config-agent-files"
+            state_path.write_text("worker.toml\n../outside.toml\n", encoding="utf-8")
+            config_path = codex_home / "config.toml"
+            config_path.write_text("sentinel = true\n", encoding="utf-8")
 
-    def test_roles_keep_cost_routing_contracts(self):
-        for name, (model, reasoning_effort) in ROLE_CONTRACTS.items():
-            with self.subTest(agent=name):
-                data = tomllib.loads(
-                    (AGENT_ROOT / f"{name}.toml").read_text(encoding="utf-8")
-                )
-                self.assertEqual(data["model"], model)
-                self.assertEqual(data["model_reasoning_effort"], reasoning_effort)
+            environment = os.environ.copy()
+            environment["CODEX_HOME"] = str(codex_home)
+            subprocess.run(
+                ["bash", str(REPO_ROOT / "scripts" / "install.sh")],
+                cwd=REPO_ROOT,
+                env=environment,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+            self.assertEqual(
+                (codex_home / "AGENTS.md").read_bytes(),
+                SHARED_GUIDANCE.read_bytes(),
+            )
+            self.assertFalse(managed_agent.exists())
+            self.assertEqual(unmanaged_agent.read_text(encoding="utf-8"), "personal\n")
+            self.assertFalse(state_path.exists())
+            self.assertEqual(config_path.read_text(encoding="utf-8"), "sentinel = true\n")
 
 
 if __name__ == "__main__":
