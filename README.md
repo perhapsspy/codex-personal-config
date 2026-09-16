@@ -1,18 +1,29 @@
 # Codex Personal Config
 
-Portable personal Codex guidance and custom support-agent definitions for `perhapsspy`.
+Portable personal Codex guidance, support-agent definitions, and core model defaults for `perhapsspy`.
 
 This repository is the shared source for files that should follow you between machines:
 
 - `codex/AGENTS.md` -> `~/.codex/AGENTS.md`
 - `codex/agents/worker.toml` -> `~/.codex/agents/worker.toml`
 - `codex/agents/explorer.toml` -> `~/.codex/agents/explorer.toml`
+- `codex/config.shared.toml` -> selected keys in `~/.codex/config.toml`
 
-Do not sync the whole `~/.codex` directory. Auth, sessions, caches, memories, plugin state, app-generated paths, and project trust lists stay local. `config.toml` is also machine-local because it commonly contains platform paths and device-specific choices.
+Auth, sessions, caches, memories, plugin state, app-generated paths, and project trust lists stay local. Only the core keys listed below are shared from `config.toml`.
 
 ## Apply the repository on a machine
 
-Run the installer from the repository root after pulling changes.
+The scripts require Python 3.11+ and `tomlkit`, which preserves local TOML formatting and comments. Install the dependency once from the repository root:
+
+```bash
+python3 -m pip install -r requirements.txt
+```
+
+On Windows, use `py -3 -m pip install -r requirements.txt`.
+
+With `uv`, skip the separate dependency install and prefix either script command with `uv run --with-requirements requirements.txt`.
+
+Run the installer after pulling changes.
 
 macOS or Linux:
 
@@ -32,7 +43,7 @@ If PowerShell blocks local scripts, run this once in that shell:
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 ```
 
-The installer copies the shared `AGENTS.md` and the two managed agent TOMLs. It removes only stale agents previously installed by this repository and leaves other local agents and `config.toml` untouched.
+The installer copies `AGENTS.md` and the two managed agent TOMLs, merges declared core settings into local `config.toml`, and removes only stale agents it previously installed. Other local settings and personal agents are preserved.
 
 To install into a non-default Codex home, set `CODEX_HOME` on macOS/Linux or pass `-CodexHome` in PowerShell.
 
@@ -60,11 +71,11 @@ Windows PowerShell:
 .\scripts\sync-from-local.ps1
 ```
 
-The sync command replaces the repository's `codex/AGENTS.md`, `worker.toml`, and `explorer.toml` with their local counterparts. Other local agents and `config.toml` are ignored. If a required file is missing or invalid, the command stops before updating the repository.
+The sync command copies local `AGENTS.md`, `worker.toml`, and `explorer.toml` into the repository and extracts only the five core keys into `codex/config.shared.toml`. Other local settings and agents are ignored. Missing input files or invalid TOML stop the command before updates.
 
 ## Shared configuration flow
 
-1. Adjust the shared guidance or managed agents on one machine.
+1. Adjust the shared guidance, managed agents, or core settings on one machine.
 2. Run the sync command above when the source change began in the local Codex home.
 3. Run the repository validation:
 
@@ -85,18 +96,16 @@ Validation checks the portable agent contracts and install/sync behavior.
 
 These are two role definitions, not a two-task limit. Independent work can reuse a role. The main Astra session retains requirements, design, difficult debugging, integration, and final judgment.
 
-## Machine-local configuration
+## Core configuration
 
-Keep `config.toml` local. Merge this example into the existing file rather than creating a second `[agents]` table:
+Edit [codex/config.shared.toml](codex/config.shared.toml) to change the shared defaults. The managed keys are:
 
-```toml
-model = "gpt-6-astra"
-model_reasoning_effort = "xhigh"
+- `model`
+- `model_reasoning_effort`
+- `agents.max_concurrent_threads_per_session`
+- `agents.default_subagent_model`
+- `agents.default_subagent_reasoning_effort`
 
-[agents]
-max_concurrent_threads_per_session = 4
-default_subagent_model = "gpt-5.6-sol"
-default_subagent_reasoning_effort = "medium"
-```
+Installation applies only keys present in the shared file; omitting a key leaves its local value unchanged. Sync exports only managed keys present locally. Approval, sandbox, MCP, plugin, desktop, and project settings remain machine-local.
 
-The role TOMLs set the model and effort for `worker` and `explorer`; Sol Medium is the fallback for children without an explicit model. Installing or syncing this repository does not change local `config.toml`, other machine-local settings, or personal agents.
+The role TOMLs set model and effort for `worker` and `explorer`; the shared `[agents]` defaults apply to children without a role-specific override.

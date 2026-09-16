@@ -53,6 +53,7 @@ class PortableConfigTests(unittest.TestCase):
                 Path("AGENTS.md"),
                 Path("agents/explorer.toml"),
                 Path("agents/worker.toml"),
+                Path("config.shared.toml"),
             ],
         )
 
@@ -69,13 +70,14 @@ class PortableConfigTests(unittest.TestCase):
                 self.assertEqual(data["model_reasoning_effort"], effort)
                 self.assertEqual(data["sandbox_mode"], sandbox_mode)
 
-    def test_readme_documents_machine_local_defaults(self):
-        readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
-        self.assertIn('model = "gpt-6-astra"', readme)
-        self.assertIn('model_reasoning_effort = "xhigh"', readme)
-        self.assertIn("[agents]", readme)
-        self.assertIn('default_subagent_model = "gpt-5.6-sol"', readme)
-        self.assertIn('default_subagent_reasoning_effort = "medium"', readme)
+    def test_shared_defaults(self):
+        shared = tomllib.loads((CODEX_ROOT / "config.shared.toml").read_text())
+        self.assertEqual(shared, {
+            "model": "gpt-6-astra", "model_reasoning_effort": "xhigh",
+            "agents": {"max_concurrent_threads_per_session": 4,
+                       "default_subagent_model": "gpt-5.6-sol",
+                       "default_subagent_reasoning_effort": "medium"},
+        })
 
     @unittest.skipUnless(os.name == "posix", "requires a POSIX shell")
     def test_installer_installs_reinstalls_and_preserves_local_files(self):
@@ -129,7 +131,98 @@ class PortableConfigTests(unittest.TestCase):
                 state_path.read_text(encoding="utf-8").splitlines(),
                 ["explorer.toml", "worker.toml"],
             )
-            self.assertEqual(config_path.read_text(encoding="utf-8"), "sentinel = true\n")
+            config = tomllib.loads(config_path.read_text(encoding="utf-8"))
+            self.assertTrue(config.pop("sentinel"))
+            self.assertEqual(config, tomllib.loads((CODEX_ROOT / "config.shared.toml").read_text()))
+
+    def _config_case(self, local, shared=None):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        root = Path(temporary.name)
+        repo, home = root / "repo", root / "home"
+        self._copy_portable_repo(repo)
+        shutil.copytree(CODEX_ROOT, home)
+        (home / "config.toml").write_text(local, encoding="utf-8")
+        if shared is not None:
+            (repo / "codex/config.shared.toml").write_text(shared, encoding="utf-8")
+        return repo, home
+
+    @unittest.skipUnless(os.name == "posix", "requires a POSIX shell")
+    def test_merge_preserves_comments_unmanaged_and_is_idempotent(self):
+        local = ('# personal\nmodel = "old" # model note\n'
+                 'model_reasoning_effort = "low" # retained\n'
+                 '[agents] # agents note\ncustom = true # custom note\n'
+                 'default_subagent_model = "old-sub" # sub note\n'
+                 '[projects."/private/work"]\ntrust_level = "trusted" # trust note\n')
+        repo, home = self._config_case(local, 'model = "new"\n[agents]\ndefault_subagent_model = "new-sub"\n')
+        self._run_bash_script(repo, "install.sh", home)
+        first = (home / "config.toml").read_text()
+        self._run_bash_script(repo, "install.sh", home)
+        self.assertEqual(first, (home / "config.toml").read_text())
+        for comment in ("# personal", "# model note", "# retained", "# agents note", "# custom note", "# sub note", "# trust note"):
+            self.assertIn(comment, first)
+        data = tomllib.loads(first)
+        self.assertEqual(data["model"], "new")
+        self.assertEqual(data["model_reasoning_effort"], "low")
+        self.assertEqual(data["agents"], {"custom": True, "default_subagent_model": "new-sub"})
+        self.assertEqual(data["projects"]["/private/work"]["trust_level"], "trusted")
+
+    @unittest.skipUnless(os.name == "posix", "requires a POSIX shell")
+    def test_extract_only_present_whitelisted_values(self):
+        local = ('model = "future-model" # private comment\nsecret = "token"\n'
+                 '[agents]\nmax_concurrent_threads_per_session = 9\n'
+                 '[agents.personal]\nmodel = "private"\n[plugins]\nenabled = true\n')
+        repo, home = self._config_case(local)
+        self._run_bash_script(repo, "sync-from-local.sh", home)
+        shared = (repo / "codex/config.shared.toml").read_text()
+        self.assertEqual(tomllib.loads(shared), {"model": "future-model", "agents": {"max_concurrent_threads_per_session": 9}})
+        self.assertNotIn("private", shared)
+        self.assertNotIn("token", shared)
+        self.assertEqual((home / "config.toml").read_text(), local)
+        self._run_bash_script(repo, "sync-from-local.sh", home)
+        self.assertEqual((repo / "codex/config.shared.toml").read_text(), shared)
+
+    @unittest.skipUnless(os.name == "posix", "requires a POSIX shell")
+    def test_invalid_toml_and_unknown_shared_reject_before_writes(self):
+        cases = [
+            ('model = "one"\nmodel = "two"\n', None),
+            ('model = [\n', None),
+            ('model = "local"\n', 'model = "one"\nmodel = "two"\n'),
+            ('model = "local"\n', '[plugins]\nenabled = true\n'),
+            ('model = "local"\n', '[agents.personal]\nmodel = "private"\n'),
+        ]
+        for local, shared in cases:
+            for script in ("install.sh", "sync-from-local.sh"):
+                with self.subTest(local=local, shared=shared, script=script):
+                    repo, home = self._config_case(local, shared)
+                    (home / "AGENTS.md").write_text("changed local guidance\n")
+                    before = {path: path.read_bytes() for base in (repo / "codex", home) for path in base.rglob("*") if path.is_file()}
+                    result = self._run_bash_script(repo, script, home, check=False)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertEqual({path: path.read_bytes() for path in before}, before)
+
+    @unittest.skipUnless(os.name == "posix", "requires a POSIX shell")
+    def test_empty_shared_retains_all_local_values(self):
+        local = 'model = "retained" # local\n[agents]\ndefault_subagent_model = "retained-sub"\n'
+        repo, home = self._config_case(local, "# no declarations\n")
+        self._run_bash_script(repo, "install.sh", home)
+        self.assertEqual((home / "config.toml").read_text(), local)
+
+    @unittest.skipUnless(os.name == "posix", "requires a POSIX shell")
+    def test_missing_local_config_can_install_but_sync_rejects(self):
+        for script in ("install.sh", "sync-from-local.sh"):
+            with self.subTest(script=script):
+                repo, home = self._config_case("")
+                (home / "config.toml").unlink()
+                before = (repo / "codex/config.shared.toml").read_bytes()
+                result = self._run_bash_script(repo, script, home, check=False)
+                if script == "install.sh":
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertEqual(tomllib.loads((home / "config.toml").read_text()), tomllib.loads((CODEX_ROOT / "config.shared.toml").read_text()))
+                else:
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn("config.toml", result.stderr)
+                    self.assertEqual((repo / "codex/config.shared.toml").read_bytes(), before)
 
     @unittest.skipUnless(os.name == "posix", "requires a POSIX shell")
     def test_sync_copies_only_managed_agents(self):
@@ -150,6 +243,7 @@ class PortableConfigTests(unittest.TestCase):
                     encoding="utf-8",
                 )
             (local_agents / "personal.toml").write_text("personal\n", encoding="utf-8")
+            (codex_home / "config.toml").write_text("", encoding="utf-8")
 
             self._run_bash_script(repo_root, "sync-from-local.sh", codex_home)
 
@@ -178,6 +272,7 @@ class PortableConfigTests(unittest.TestCase):
             before_guidance = (repo_root / "codex" / "AGENTS.md").read_bytes()
             before_worker = (repo_root / "codex" / "agents" / "worker.toml").read_bytes()
             (codex_home / "AGENTS.md").write_text("new guidance\n", encoding="utf-8")
+            (codex_home / "config.toml").write_text("", encoding="utf-8")
             shutil.copy2(AGENT_ROOT / "worker.toml", local_agents / "worker.toml")
 
             result = self._run_bash_script(

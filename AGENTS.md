@@ -7,7 +7,7 @@
 ## Editing Rules
 
 - Keep `codex/AGENTS.md` short and behavior-changing only.
-- Do not install or sync `config.toml`; document small examples in `README.md` only.
+- Manage only the core keys declared in `codex/config.shared.toml`; preserve all other local `config.toml` settings.
 - Update `README.md` and install commands when file layout or install behavior changes.
 
 ## Validation
