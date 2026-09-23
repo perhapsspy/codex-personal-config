@@ -11,8 +11,8 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 CODEX_ROOT = REPO_ROOT / "codex"
 AGENT_ROOT = CODEX_ROOT / "agents"
 AGENT_CONTRACTS = {
-    "explorer": ("gpt-5.6-luna", "max", "workspace-write"),
-    "worker": ("gpt-5.6-sol", "medium", "workspace-write"),
+    "explorer": ("gpt-6-luna", "max", "workspace-write"),
+    "worker": ("gpt-6-sol", "medium", "workspace-write"),
 }
 REQUIRED_STRING_FIELDS = (
     "name",
@@ -75,7 +75,7 @@ class PortableConfigTests(unittest.TestCase):
         self.assertEqual(shared, {
             "model": "gpt-6-astra", "model_reasoning_effort": "xhigh",
             "agents": {"max_concurrent_threads_per_session": 4,
-                       "default_subagent_model": "gpt-5.6-sol",
+                       "default_subagent_model": "gpt-6-sol",
                        "default_subagent_reasoning_effort": "medium"},
         })
 

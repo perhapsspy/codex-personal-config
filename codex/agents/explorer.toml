@@ -1,6 +1,6 @@
 name = "explorer"
 description = "Investigate bounded code or documentation questions, trace behavior, analyze logs, and check explicit criteria without editing project files."
-model = "gpt-5.6-luna"
+model = "gpt-6-luna"
 model_reasoning_effort = "max"
 sandbox_mode = "workspace-write"
 
