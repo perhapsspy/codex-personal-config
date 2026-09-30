@@ -93,6 +93,8 @@ Validation checks the portable agent contracts and install/sync behavior.
 
 ## Delegation roles
 
+The main session uses GPT-6.1 Sol High. Astra is not selected or used for escalation automatically, and Sol reasoning effort is capped at High.
+
 - `worker` uses GPT-6.1 Sol Medium for bounded implementation, fixes, refactoring, and tests.
 - `explorer` uses Luna Max for code or documentation investigation, log analysis, and checks against explicit criteria.
 
