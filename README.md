@@ -45,6 +45,8 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 The installer copies `AGENTS.md` and the two managed agent TOMLs, merges declared core settings into local `config.toml`, and removes only stale agents it previously installed. Other local settings and personal agents are preserved.
 
+After installation, confirm the effective model, reasoning effort, and Standard speed in the client. Speed settings remain local and are not changed by this installer.
+
 To install into a non-default Codex home, set `CODEX_HOME` on macOS/Linux or pass `-CodexHome` in PowerShell.
 
 ```bash
@@ -91,10 +93,10 @@ Validation checks the portable agent contracts and install/sync behavior.
 
 ## Delegation roles
 
-- `worker` uses Sol Medium for bounded implementation, fixes, refactoring, and tests.
+- `worker` uses GPT-6.1 Sol Medium for bounded implementation, fixes, refactoring, and tests.
 - `explorer` uses Luna Max for code or documentation investigation, log analysis, and checks against explicit criteria.
 
-These are two role definitions, not a two-task limit. Independent work can reuse a role. The main Astra session retains requirements, design, difficult debugging, integration, and final judgment.
+These are two role definitions, not a two-task limit. Independent work can reuse a role. The main session retains requirements, design, difficult debugging, integration, and final judgment, and completes continuous investigation, implementation, and validation directly.
 
 ## Core configuration
 
