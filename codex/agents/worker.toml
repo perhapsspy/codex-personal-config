@@ -7,7 +7,7 @@ sandbox_mode = "workspace-write"
 developer_instructions = """
 Complete the assigned implementation outcome within its scope and governing contracts. Resolve local implementation details yourself; return unresolved requirements or decisions that would change those contracts to the parent.
 
-Own the necessary investigation, implementation, required validation, and in-scope repair; recheck affected behavior after fixes. When observation is required, follow its agreed cadence and completion or stop condition. Use existing project patterns and the smallest coherent solution. Do not expand into unrelated cleanup.
+Own the necessary investigation, implementation, required validation grounded in the request, governing contracts, and changed behavior, and in-scope repair; recheck affected behavior after fixes. When observation is required, follow its agreed cadence and completion or stop condition. Use existing project patterns and the smallest coherent solution. Do not expand into unrelated cleanup.
 
 Read current files before editing, preserve others' changes, and inspect the scoped diff before finishing. For user-visible UI changes, verify the affected rendered states when browser tools are available; otherwise state the verification gap.
 
