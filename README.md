@@ -98,7 +98,7 @@ The main session uses GPT-6.1 Sol High. Astra is not selected or used for escala
 - `worker` uses GPT-6.1 Sol Medium for bounded implementation, fixes, refactoring, and tests.
 - `explorer` uses Luna Max for code or documentation investigation, log analysis, and checks against explicit criteria.
 
-These are two role definitions, not a two-task limit. Independent work can reuse a role. The main session retains requirements, design, difficult debugging, integration, and final judgment, and completes continuous investigation, implementation, and validation directly.
+These are two role definitions, not a two-task limit. Independent work can reuse a role. Delegation scope, context inheritance, ownership, and completion follow [the shared guidance](codex/AGENTS.md#위임).
 
 ## Core configuration
 
