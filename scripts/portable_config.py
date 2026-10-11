@@ -13,7 +13,7 @@ except ImportError:
     sys.exit("Missing dependency: install requirements.txt with Python 3.11+ first.")
 
 
-AGENT_NAMES = ("explorer.toml", "worker.toml")
+AGENT_NAMES = ("advisor.toml", "explorer.toml", "worker.toml")
 ROLE_FIELDS = (
     "name", "description", "model", "model_reasoning_effort",
     "sandbox_mode", "developer_instructions",
@@ -116,10 +116,10 @@ def run(action, repo_root, codex_home):
                 if name not in AGENT_NAMES and previous.is_file():
                     previous.unlink()
         state_path.write_text("\n".join(AGENT_NAMES) + "\n", encoding="utf-8")
-        print(f"Installed AGENTS.md, two managed agents, and declared shared settings into {target}")
+        print(f"Installed AGENTS.md, {len(AGENT_NAMES)} managed agents, and declared shared settings into {target}")
         print("Unmanaged config settings and local agents were retained.")
     else:
-        print(f"Synced AGENTS.md, two managed agents, and allowed shared settings into {target}")
+        print(f"Synced AGENTS.md, {len(AGENT_NAMES)} managed agents, and allowed shared settings into {target}")
         print("Review git diff before committing. Local config.toml was not changed.")
 
 

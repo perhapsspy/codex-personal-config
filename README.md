@@ -7,6 +7,7 @@ This repository is the shared source for files that should follow you between ma
 - `codex/AGENTS.md` -> `~/.codex/AGENTS.md`
 - `codex/agents/worker.toml` -> `~/.codex/agents/worker.toml`
 - `codex/agents/explorer.toml` -> `~/.codex/agents/explorer.toml`
+- `codex/agents/advisor.toml` -> `~/.codex/agents/advisor.toml`
 - `codex/config.shared.toml` -> selected keys in `~/.codex/config.toml`
 
 Auth, sessions, caches, memories, plugin state, app-generated paths, and project trust lists stay local. Only the core keys listed below are shared from `config.toml`.
@@ -43,7 +44,7 @@ If PowerShell blocks local scripts, run this once in that shell:
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 ```
 
-The installer copies `AGENTS.md` and the two managed agent TOMLs, merges declared core settings into local `config.toml`, and removes only stale agents it previously installed. Other local settings and personal agents are preserved.
+The installer copies `AGENTS.md` and the three managed agent TOMLs, merges declared core settings into local `config.toml`, and removes only stale agents it previously installed. Other local settings and personal agents are preserved.
 
 After installation, confirm the effective model, reasoning effort, and Standard speed in the client. Speed settings remain local and are not changed by this installer.
 
@@ -73,7 +74,7 @@ Windows PowerShell:
 .\scripts\sync-from-local.ps1
 ```
 
-The sync command copies local `AGENTS.md`, `worker.toml`, and `explorer.toml` into the repository and extracts only the five core keys into `codex/config.shared.toml`. Other local settings and agents are ignored. Missing input files or invalid TOML stop the command before updates.
+The sync command copies local `AGENTS.md`, `worker.toml`, `explorer.toml`, and `advisor.toml` into the repository and extracts only the five core keys into `codex/config.shared.toml`. Other local settings and agents are ignored. Missing input files or invalid TOML stop the command before updates.
 
 ## Shared configuration flow
 
@@ -93,12 +94,15 @@ Validation checks the portable agent contracts and install/sync behavior.
 
 ## Delegation roles
 
-The main session uses GPT-6.1 Sol High. Astra is not selected or used for escalation automatically, and Sol reasoning effort is capped at High.
+The main session and default subagents use GPT-6.1 Sol High; Sol reasoning effort is capped at High.
 
-- `worker` uses GPT-6.1 Sol Medium for bounded implementation, fixes, refactoring, and tests.
+- `worker` uses GPT-6.1 Sol High for bounded implementation, fixes, refactoring, and tests.
 - `explorer` uses Luna Max for code or documentation investigation, log analysis, and checks against explicit criteria.
+- `advisor` uses GPT-6 Astra High with a read-only sandbox default for independent direction, structure, and strong review, including dots and Sol assumptions and completion claims. It compares original requests and approved scope with plans, code, changes, and validation evidence. The main session owns final acceptance.
 
-These are two role definitions, not a two-task limit. Independent work can reuse a role. Delegation scope, context inheritance, ownership, and completion follow [the shared guidance](codex/AGENTS.md#위임).
+Consult advisor at substantial work kickoff, after important user-facing feature groups, before declaring no remaining work, and immediately when Sol suspects direction, structure, omissions, or repetition. Avoid repeated consultation on unchanged evidence or every simple task or commit. Worker may delegate only advisor consultation; if nested calls are unavailable, the main session must relay the request without changing call limits. Continue independent work and hold only affected decisions and unreviewed completion claims.
+
+Independent work can reuse a role. Delegation scope, context inheritance, ownership, and completion follow [the shared guidance](codex/AGENTS.md#위임). The standalone role files follow the [official custom-agent schema](https://learn.chatgpt.com/docs/agent-configuration/subagents#custom-agent-file-schema). Runtime tools and live parent permission overrides determine available calls and effective permissions; verify them in the current session.
 
 ## Core configuration
 
@@ -112,4 +116,4 @@ Edit [codex/config.shared.toml](codex/config.shared.toml) to change the shared d
 
 Installation applies only keys present in the shared file; omitting a key leaves its local value unchanged. Sync exports only managed keys present locally. Approval, sandbox, MCP, plugin, desktop, and project settings remain machine-local.
 
-The role TOMLs set model and effort for `worker` and `explorer`; the shared `[agents]` defaults apply to children without a role-specific override.
+The role TOMLs set model and effort for `worker`, `explorer`, and `advisor`; the shared `[agents]` defaults apply to children without a role-specific override.

@@ -12,7 +12,8 @@ CODEX_ROOT = REPO_ROOT / "codex"
 AGENT_ROOT = CODEX_ROOT / "agents"
 AGENT_CONTRACTS = {
     "explorer": ("gpt-6-luna", "max", "workspace-write"),
-    "worker": ("gpt-6.1-sol", "medium", "workspace-write"),
+    "worker": ("gpt-6.1-sol", "high", "workspace-write"),
+    "advisor": ("gpt-6-astra", "high", "read-only"),
 }
 REQUIRED_STRING_FIELDS = (
     "name",
@@ -51,6 +52,7 @@ class PortableConfigTests(unittest.TestCase):
             installed_files,
             [
                 Path("AGENTS.md"),
+                Path("agents/advisor.toml"),
                 Path("agents/explorer.toml"),
                 Path("agents/worker.toml"),
                 Path("config.shared.toml"),
@@ -76,7 +78,7 @@ class PortableConfigTests(unittest.TestCase):
             "model": "gpt-6.1-sol", "model_reasoning_effort": "high",
             "agents": {"max_concurrent_threads_per_session": 4,
                        "default_subagent_model": "gpt-6.1-sol",
-                       "default_subagent_reasoning_effort": "medium"},
+                       "default_subagent_reasoning_effort": "high"},
         })
 
     @unittest.skipUnless(os.name == "posix", "requires a POSIX shell")
@@ -109,7 +111,13 @@ class PortableConfigTests(unittest.TestCase):
                 encoding="utf-8",
             )
             config_path = codex_home / "config.toml"
-            config_path.write_text("sentinel = true\n", encoding="utf-8")
+            config_path.write_text(
+                'sentinel = true\napproval_policy = "on-request"\n'
+                'approvals_reviewer = "user"\nsandbox_mode = "read-only"\n'
+                '[sandbox_workspace_write]\nnetwork_access = false\n'
+                '[agents.personal]\nmodel = "personal-model"\n',
+                encoding="utf-8",
+            )
 
             self._run_bash_script(repo_root, "install.sh", codex_home)
             self._run_bash_script(repo_root, "install.sh", codex_home)
@@ -129,10 +137,15 @@ class PortableConfigTests(unittest.TestCase):
             self.assertEqual(personal_agent.read_text(encoding="utf-8"), "personal\n")
             self.assertEqual(
                 state_path.read_text(encoding="utf-8").splitlines(),
-                ["explorer.toml", "worker.toml"],
+                ["advisor.toml", "explorer.toml", "worker.toml"],
             )
             config = tomllib.loads(config_path.read_text(encoding="utf-8"))
             self.assertTrue(config.pop("sentinel"))
+            self.assertEqual(config.pop("approval_policy"), "on-request")
+            self.assertEqual(config.pop("approvals_reviewer"), "user")
+            self.assertEqual(config.pop("sandbox_mode"), "read-only")
+            self.assertEqual(config.pop("sandbox_workspace_write"), {"network_access": False})
+            self.assertEqual(config["agents"].pop("personal"), {"model": "personal-model"})
             self.assertEqual(config, tomllib.loads((CODEX_ROOT / "config.shared.toml").read_text()))
 
     def _config_case(self, local, shared=None):
@@ -200,6 +213,20 @@ class PortableConfigTests(unittest.TestCase):
                     result = self._run_bash_script(repo, script, home, check=False)
                     self.assertNotEqual(result.returncode, 0)
                     self.assertEqual({path: path.read_bytes() for path in before}, before)
+
+    @unittest.skipUnless(os.name == "posix", "requires a POSIX shell")
+    def test_invalid_advisor_rejects_install_and_sync_before_writes(self):
+        for script in ("install.sh", "sync-from-local.sh"):
+            with self.subTest(script=script):
+                repo, home = self._config_case('model = "local"\n')
+                source = repo / "codex" if script == "install.sh" else home
+                (source / "agents/advisor.toml").write_text('name = "advisor"\n')
+                before = {path: path.read_bytes() for base in (repo / "codex", home)
+                          for path in base.rglob("*") if path.is_file()}
+                result = self._run_bash_script(repo, script, home, check=False)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("advisor.toml", result.stderr)
+                self.assertEqual({path: path.read_bytes() for path in before}, before)
 
     @unittest.skipUnless(os.name == "posix", "requires a POSIX shell")
     def test_empty_shared_retains_all_local_values(self):
@@ -280,7 +307,7 @@ class PortableConfigTests(unittest.TestCase):
             )
 
             self.assertNotEqual(result.returncode, 0)
-            self.assertIn("explorer.toml", result.stderr)
+            self.assertIn("advisor.toml", result.stderr)
             self.assertEqual(
                 (repo_root / "codex" / "AGENTS.md").read_bytes(), before_guidance
             )
