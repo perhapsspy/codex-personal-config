@@ -94,15 +94,15 @@ Validation checks the portable agent contracts and install/sync behavior.
 
 ## Delegation roles
 
-The main session and default subagents use GPT-6.1 Sol High; Sol reasoning effort is capped at High.
+Roles have separate responsibilities:
 
-- `worker` uses GPT-6.1 Sol High for bounded implementation, fixes, refactoring, and tests.
-- `explorer` uses Luna Max for code or documentation investigation, log analysis, and checks against explicit criteria.
-- `advisor` uses GPT-6 Astra High with a read-only sandbox default for independent direction, structure, and strong review, including dots and Sol assumptions and completion claims. It compares original requests and approved scope with plans, code, changes, and validation evidence. The main session owns final acceptance.
+- [worker](codex/agents/worker.toml) owns bounded implementation, required validation, and in-scope repair.
+- [explorer](codex/agents/explorer.toml) investigates bounded questions and checks explicit criteria without editing project files.
+- [advisor](codex/agents/advisor.toml) independently reviews direction, structure, and completion evidence without implementing changes. The main session owns final acceptance.
 
-Consult advisor at substantial work kickoff, after important user-facing feature groups, before declaring no remaining work, and immediately when Sol suspects direction, structure, omissions, or repetition. Avoid repeated consultation on unchanged evidence or every simple task or commit. Worker may delegate only advisor consultation. Select the custom role named `advisor` through the supported role selector (`agent_type="advisor"` when exposed); a task name or model-only request does not select its TOML. If role selection or nested calls are unavailable, the main session must relay the named advisor request without changing call limits. If the main session also lacks role selection, report consultation as unsupported and leave the affected review open. Continue independent work and hold only affected decisions and unreviewed completion claims.
+Delegation and consultation triggers follow [the shared guidance](codex/AGENTS.md#위임). Each role file owns its description, model, effort, and execution instructions; shared defaults are defined in [codex/config.shared.toml](codex/config.shared.toml).
 
-Independent work can reuse a role. Delegation scope, context inheritance, ownership, and completion follow [the shared guidance](codex/AGENTS.md#위임). The standalone role files follow the [official custom-agent schema](https://learn.chatgpt.com/docs/agent-configuration/subagents#custom-agent-file-schema). Runtime tools and live parent permission overrides determine available calls and effective permissions; verify them in the current session.
+Custom agents inherit the parent session's permissions. Read-only role instructions constrain behavior but do not establish a separate read-only sandbox. Use the current runtime tools to confirm available role selection and effective permissions. See the [official custom-agent schema](https://learn.chatgpt.com/docs/agent-configuration/subagents#custom-agent-file-schema).
 
 ## Core configuration
 

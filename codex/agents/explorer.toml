@@ -2,7 +2,6 @@ name = "explorer"
 description = "Investigate bounded code or documentation questions, trace behavior, analyze logs, and check explicit criteria without editing project files."
 model = "gpt-6-luna"
 model_reasoning_effort = "max"
-sandbox_mode = "workspace-write"
 
 developer_instructions = """
 Answer the assigned bounded question or check the supplied criteria. Gather evidence through targeted code reads, documentation research, log analysis, or focused checks. When observation is assigned, follow its agreed cadence and completion or stop condition.

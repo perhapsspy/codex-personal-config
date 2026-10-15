@@ -11,16 +11,15 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 CODEX_ROOT = REPO_ROOT / "codex"
 AGENT_ROOT = CODEX_ROOT / "agents"
 AGENT_CONTRACTS = {
-    "explorer": ("gpt-6-luna", "max", "workspace-write"),
-    "worker": ("gpt-6.1-sol", "high", "workspace-write"),
-    "advisor": ("gpt-6-astra", "high", "read-only"),
+    "explorer": ("gpt-6-luna", "max"),
+    "worker": ("gpt-6.1-sol", "high"),
+    "advisor": ("gpt-6-astra", "high"),
 }
 REQUIRED_STRING_FIELDS = (
     "name",
     "description",
     "model",
     "model_reasoning_effort",
-    "sandbox_mode",
     "developer_instructions",
 )
 
@@ -59,7 +58,7 @@ class PortableConfigTests(unittest.TestCase):
             ],
         )
 
-        for name, (model, effort, sandbox_mode) in AGENT_CONTRACTS.items():
+        for name, (model, effort) in AGENT_CONTRACTS.items():
             with self.subTest(agent=name):
                 data = tomllib.loads(
                     (AGENT_ROOT / f"{name}.toml").read_text(encoding="utf-8")
@@ -70,7 +69,6 @@ class PortableConfigTests(unittest.TestCase):
                 self.assertEqual(data["name"], name)
                 self.assertEqual(data["model"], model)
                 self.assertEqual(data["model_reasoning_effort"], effort)
-                self.assertEqual(data["sandbox_mode"], sandbox_mode)
 
     def test_shared_defaults(self):
         shared = tomllib.loads((CODEX_ROOT / "config.shared.toml").read_text())

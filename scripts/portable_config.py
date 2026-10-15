@@ -16,7 +16,7 @@ except ImportError:
 AGENT_NAMES = ("advisor.toml", "explorer.toml", "worker.toml")
 ROLE_FIELDS = (
     "name", "description", "model", "model_reasoning_effort",
-    "sandbox_mode", "developer_instructions",
+    "developer_instructions",
 )
 SHARED_PATHS = {
     ("model",): str,
