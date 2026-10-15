@@ -13,7 +13,12 @@
 ## Validation
 
 - Run `python3 -m unittest discover -s tests -v` after changing shared guidance or install scripts.
-- When installable files change, run the installer from `README.md` and confirm the repository source matches the installed runtime.
+- When installable files change, run the installer from `README.md` and verify the installed files and declared settings. Distinguish saved configuration from a running session's effective settings.
+
+## Deployment Targets
+
+- For deployment or sync work, follow the target workflow in `README.md` for the Mac, the dot instance's Codex, and manual Windows installs. Check each accessible target on its actual host; report verified, pending, or blocked status separately. A local install does not verify the dot instance.
+- Import shared settings only from the explicitly selected source host. After reviewing and publishing them, install and verify that revision on the other targets; preserve their host-local settings and state.
 
 ## Completion
 

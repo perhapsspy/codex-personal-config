@@ -1,6 +1,7 @@
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 import tomllib
 import unittest
@@ -29,17 +30,28 @@ class PortableConfigTests(unittest.TestCase):
         shutil.copytree(CODEX_ROOT, destination / "codex")
         shutil.copytree(REPO_ROOT / "scripts", destination / "scripts")
 
-    def _run_bash_script(self, repo_root, script_name, codex_home, check=True):
+    def _run_bash_script(self, repo_root, script_name, codex_home, check=True, args=()):
         environment = os.environ.copy()
         environment["CODEX_HOME"] = str(codex_home)
         return subprocess.run(
-            ["bash", str(repo_root / "scripts" / script_name)],
+            ["bash", str(repo_root / "scripts" / script_name), *args],
             cwd=repo_root,
             env=environment,
             check=check,
             capture_output=True,
             text=True,
         )
+
+    def _verify(self, repo, home):
+        return subprocess.run(
+            [sys.executable, str(repo / "scripts/portable_config.py"),
+             "verify", "--codex-home", str(home)],
+            cwd=repo, capture_output=True, text=True,
+        )
+
+    def _tree_state(self, *roots):
+        return {path: (path.read_bytes(), path.stat().st_mtime_ns)
+                for root in roots for path in root.rglob("*") if path.is_file()}
 
     def test_installable_files_and_agent_contracts(self):
         installed_files = sorted(
@@ -117,7 +129,8 @@ class PortableConfigTests(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            self._run_bash_script(repo_root, "install.sh", codex_home)
+            result = self._run_bash_script(repo_root, "install.sh", codex_home)
+            self.assertIn("Verified managed files and declared shared settings.", result.stdout)
             self._run_bash_script(repo_root, "install.sh", codex_home)
 
             self.assertEqual(
@@ -157,6 +170,97 @@ class PortableConfigTests(unittest.TestCase):
         if shared is not None:
             (repo / "codex/config.shared.toml").write_text(shared, encoding="utf-8")
         return repo, home
+
+    def test_verify_is_read_only_and_compares_only_declared_keys(self):
+        local = ('model = "shared"\nmodel_reasoning_effort = false\n'
+                 'secret = "private-token"\n[agents]\ncustom = true\n'
+                 'default_subagent_model = "private-model"\n')
+        repo, home = self._config_case(local, 'model = "shared"\n')
+        (home / "agents/personal.toml").write_text("personal\n")
+        before = self._tree_state(repo, home)
+        result = self._verify(repo, home)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(before, self._tree_state(repo, home))
+        for identity in ("Host:", "OS:", f"Source repository: {repo.resolve()}",
+                         "Source HEAD revision: unknown", f"Codex home: {home.resolve()}",
+                         "Observed at (UTC):"):
+            self.assertIn(identity, result.stdout)
+        self.assertNotIn("private-token", result.stdout + result.stderr)
+        self.assertNotIn("private-model", result.stdout + result.stderr)
+
+    def test_verify_reports_missing_files_without_writing(self):
+        for relative in ("config.toml", "AGENTS.md", "agents/advisor.toml",
+                         "agents/explorer.toml", "agents/worker.toml"):
+            with self.subTest(file=relative):
+                repo, home = self._config_case('model = "shared"\n', 'model = "shared"\n')
+                (home / relative).unlink()
+                before = self._tree_state(repo, home)
+                result = self._verify(repo, home)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn(f"Missing file: {relative}", result.stderr)
+                self.assertEqual(before, self._tree_state(repo, home))
+        repo, home = self._config_case("")
+        shutil.rmtree(home)
+        self.assertNotEqual(self._verify(repo, home).returncode, 0)
+        self.assertFalse(home.exists())
+
+    def test_verify_reports_byte_drift_in_each_managed_file(self):
+        for relative in ("AGENTS.md", "agents/advisor.toml",
+                         "agents/explorer.toml", "agents/worker.toml"):
+            with self.subTest(file=relative):
+                repo, home = self._config_case('model = "shared"\n', 'model = "shared"\n')
+                with (home / relative).open("ab") as stream:
+                    stream.write(b"\n# local change\n")
+                before = self._tree_state(repo, home)
+                result = self._verify(repo, home)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn(f"File mismatch: {relative}", result.stderr)
+                self.assertEqual(before, self._tree_state(repo, home))
+
+    def test_verify_reports_declared_key_drift_without_values(self):
+        cases = [
+            ('model = "private-value"\n', 'model = "shared"\n', "Key mismatch: config.toml:model"),
+            ('secret = "private-value"\n', 'model = "shared"\n', "Missing key: config.toml:model"),
+            ('[agents]\ndefault_subagent_model = "private-value"\n',
+             '[agents]\ndefault_subagent_model = "shared"\n',
+             "Key mismatch: config.toml:agents.default_subagent_model"),
+            ('[agents]\nmax_concurrent_threads_per_session = true\n',
+             '[agents]\nmax_concurrent_threads_per_session = 1\n',
+             "Key mismatch: config.toml:agents.max_concurrent_threads_per_session"),
+            ('agents = "private-value"\n', '[agents]\ndefault_subagent_model = "shared"\n',
+             "Missing key: config.toml:agents.default_subagent_model"),
+        ]
+        for local, shared, diagnostic in cases:
+            with self.subTest(diagnostic=diagnostic):
+                repo, home = self._config_case(local, shared)
+                before = self._tree_state(repo, home)
+                result = self._verify(repo, home)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn(diagnostic, result.stderr)
+                self.assertNotIn("private-value", result.stdout + result.stderr)
+                self.assertEqual(before, self._tree_state(repo, home))
+
+    def test_verify_rejects_unreadable_config_content_without_echoing_it(self):
+        for relative in ("config.toml", "codex/config.shared.toml"):
+            with self.subTest(file=relative):
+                repo, home = self._config_case('model = "shared"\n', 'model = "shared"\n')
+                path = home / relative if relative == "config.toml" else repo / relative
+                path.write_text('model = "private-value" invalid\n')
+                before = self._tree_state(repo, home)
+                result = self._verify(repo, home)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn(f"Invalid TOML: {relative}", result.stderr)
+                self.assertNotIn("private-value", result.stdout + result.stderr)
+                self.assertEqual(before, self._tree_state(repo, home))
+
+    @unittest.skipUnless(os.name == "posix", "requires a POSIX shell")
+    def test_verify_shell_wrapper_honors_explicit_home_and_exit_code(self):
+        repo, home = self._config_case('model = "shared"\n', 'model = "shared"\n')
+        result = self._run_bash_script(repo, "verify.sh", home / "missing", args=("--codex-home", str(home)))
+        self.assertIn(f"Codex home: {home.resolve()}", result.stdout)
+        result = self._run_bash_script(repo, "verify.sh", home / "missing", check=False)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse((home / "missing").exists())
 
     @unittest.skipUnless(os.name == "posix", "requires a POSIX shell")
     def test_merge_preserves_comments_unmanaged_and_is_idempotent(self):

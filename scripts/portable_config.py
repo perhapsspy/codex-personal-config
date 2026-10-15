@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
-"""Install portable guidance or extract the explicitly shared Codex settings."""
+"""Install, verify, or extract the explicitly shared Codex settings."""
 
 import argparse
+from datetime import datetime, timezone
 import os
 from pathlib import Path
+import platform
 import shutil
+import socket
+import subprocess
 import sys
 
 try:
@@ -83,7 +87,82 @@ def validate_sources(source):
                 raise ValueError(f"Missing {field} in {path}")
 
 
+def verify(repo_root, codex_home):
+    """Read back managed files and declared keys without changing either tree."""
+    try:
+        revision = subprocess.run(
+            ["git", "-C", str(repo_root), "rev-parse", "--verify", "HEAD"],
+            check=True, capture_output=True, text=True, timeout=5,
+        ).stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        revision = "unknown"
+    print(f"Host: {socket.gethostname()}")
+    print(f"OS: {platform.system()}")
+    print(f"Source repository: {repo_root.resolve()}")
+    print(f"Source HEAD revision: {revision}")
+    print(f"Codex home: {codex_home.resolve()}")
+    print(f"Observed at (UTC): {datetime.now(timezone.utc).isoformat()}")
+
+    problems = []
+
+    def read_bytes(path, label):
+        try:
+            return path.read_bytes()
+        except FileNotFoundError:
+            problems.append(f"Missing file: {label}")
+        except OSError:
+            problems.append(f"Cannot read file: {label}")
+        return None
+
+    portable = repo_root / "codex"
+    for relative in (Path("AGENTS.md"), *(Path("agents") / name for name in AGENT_NAMES)):
+        source = read_bytes(portable / relative, f"codex/{relative.as_posix()}")
+        installed = read_bytes(codex_home / relative, relative.as_posix())
+        if source is not None and installed is not None and source != installed:
+            problems.append(f"File mismatch: {relative.as_posix()}")
+
+    def read_config(path, label):
+        content = read_bytes(path, label)
+        if content is None:
+            return None
+        try:
+            return tomlkit.parse(content.decode("utf-8"))
+        except (UnicodeError, tomlkit.exceptions.ParseError):
+            problems.append(f"Invalid TOML: {label}")
+            return None
+
+    shared = read_config(portable / "config.shared.toml", "codex/config.shared.toml")
+    local = read_config(codex_home / "config.toml", "config.toml")
+    if shared is not None:
+        try:
+            declared = shared_values(shared, strict=True)
+        except ValueError as error:
+            problems.append(str(error))
+        else:
+            if local is not None:
+                missing = object()
+                for path, expected in declared.items():
+                    actual = local
+                    for key in path:
+                        actual = actual.get(key, missing) if isinstance(actual, dict) else missing
+                    if actual is missing:
+                        problems.append(f"Missing key: config.toml:{'.'.join(path)}")
+                    else:
+                        actual = actual.unwrap() if hasattr(actual, "unwrap") else actual
+                        if type(actual) is not type(expected) or actual != expected:
+                            problems.append(f"Key mismatch: config.toml:{'.'.join(path)}")
+    for problem in problems:
+        print(problem, file=sys.stderr)
+    if problems:
+        print("Verification failed.", file=sys.stderr)
+        return False
+    print("Verified managed files and declared shared settings.")
+    return True
+
+
 def run(action, repo_root, codex_home):
+    if action == "verify":
+        return 0 if verify(repo_root, codex_home) else 1
     portable = repo_root / "codex"
     shared_path = portable / "config.shared.toml"
     local_path = codex_home / "config.toml"
@@ -118,20 +197,23 @@ def run(action, repo_root, codex_home):
         state_path.write_text("\n".join(AGENT_NAMES) + "\n", encoding="utf-8")
         print(f"Installed AGENTS.md, {len(AGENT_NAMES)} managed agents, and declared shared settings into {target}")
         print("Unmanaged config settings and local agents were retained.")
+        return 0 if verify(repo_root, codex_home) else 1
     else:
         print(f"Synced AGENTS.md, {len(AGENT_NAMES)} managed agents, and allowed shared settings into {target}")
         print("Review git diff before committing. Local config.toml was not changed.")
+        return 0
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=("install", "sync"))
+    parser.add_argument("action", choices=("install", "sync", "verify"))
     parser.add_argument("--codex-home", type=Path, default=Path(os.environ.get("CODEX_HOME", Path.home() / ".codex")))
     args = parser.parse_args()
     try:
-        run(args.action, Path(__file__).resolve().parents[1], args.codex_home)
+        status = run(args.action, Path(__file__).resolve().parents[1], args.codex_home)
     except (OSError, ValueError, tomlkit.exceptions.ParseError) as error:
         parser.exit(1, f"{error}\n")
+    parser.exit(status)
 
 
 if __name__ == "__main__":
