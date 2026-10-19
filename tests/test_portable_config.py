@@ -14,7 +14,6 @@ AGENT_ROOT = CODEX_ROOT / "agents"
 AGENT_CONTRACTS = {
     "explorer": ("gpt-6-luna", "max"),
     "worker": ("gpt-6.1-sol", "high"),
-    "advisor": ("gpt-6-astra", "high"),
 }
 REQUIRED_STRING_FIELDS = (
     "name",
@@ -63,7 +62,6 @@ class PortableConfigTests(unittest.TestCase):
             installed_files,
             [
                 Path("AGENTS.md"),
-                Path("agents/advisor.toml"),
                 Path("agents/explorer.toml"),
                 Path("agents/worker.toml"),
                 Path("config.shared.toml"),
@@ -102,6 +100,7 @@ class PortableConfigTests(unittest.TestCase):
             agent_root.mkdir(parents=True)
 
             stale_names = [
+                "advisor.toml",
                 "code_mapper.toml",
                 "decision_reviewer.toml",
                 "docs_researcher.toml",
@@ -148,7 +147,7 @@ class PortableConfigTests(unittest.TestCase):
             self.assertEqual(personal_agent.read_text(encoding="utf-8"), "personal\n")
             self.assertEqual(
                 state_path.read_text(encoding="utf-8").splitlines(),
-                ["advisor.toml", "explorer.toml", "worker.toml"],
+                ["explorer.toml", "worker.toml"],
             )
             config = tomllib.loads(config_path.read_text(encoding="utf-8"))
             self.assertTrue(config.pop("sentinel"))
@@ -189,7 +188,7 @@ class PortableConfigTests(unittest.TestCase):
         self.assertNotIn("private-model", result.stdout + result.stderr)
 
     def test_verify_reports_missing_files_without_writing(self):
-        for relative in ("config.toml", "AGENTS.md", "agents/advisor.toml",
+        for relative in ("config.toml", "AGENTS.md",
                          "agents/explorer.toml", "agents/worker.toml"):
             with self.subTest(file=relative):
                 repo, home = self._config_case('model = "shared"\n', 'model = "shared"\n')
@@ -205,7 +204,7 @@ class PortableConfigTests(unittest.TestCase):
         self.assertFalse(home.exists())
 
     def test_verify_reports_byte_drift_in_each_managed_file(self):
-        for relative in ("AGENTS.md", "agents/advisor.toml",
+        for relative in ("AGENTS.md",
                          "agents/explorer.toml", "agents/worker.toml"):
             with self.subTest(file=relative):
                 repo, home = self._config_case('model = "shared"\n', 'model = "shared"\n')
@@ -317,17 +316,17 @@ class PortableConfigTests(unittest.TestCase):
                     self.assertEqual({path: path.read_bytes() for path in before}, before)
 
     @unittest.skipUnless(os.name == "posix", "requires a POSIX shell")
-    def test_invalid_advisor_rejects_install_and_sync_before_writes(self):
+    def test_invalid_worker_rejects_install_and_sync_before_writes(self):
         for script in ("install.sh", "sync-from-local.sh"):
             with self.subTest(script=script):
                 repo, home = self._config_case('model = "local"\n')
                 source = repo / "codex" if script == "install.sh" else home
-                (source / "agents/advisor.toml").write_text('name = "advisor"\n')
+                (source / "agents/worker.toml").write_text('name = "worker"\n')
                 before = {path: path.read_bytes() for base in (repo / "codex", home)
                           for path in base.rglob("*") if path.is_file()}
                 result = self._run_bash_script(repo, script, home, check=False)
                 self.assertNotEqual(result.returncode, 0)
-                self.assertIn("advisor.toml", result.stderr)
+                self.assertIn("worker.toml", result.stderr)
                 self.assertEqual({path: path.read_bytes() for path in before}, before)
 
     @unittest.skipUnless(os.name == "posix", "requires a POSIX shell")
@@ -409,7 +408,7 @@ class PortableConfigTests(unittest.TestCase):
             )
 
             self.assertNotEqual(result.returncode, 0)
-            self.assertIn("advisor.toml", result.stderr)
+            self.assertIn("explorer.toml", result.stderr)
             self.assertEqual(
                 (repo_root / "codex" / "AGENTS.md").read_bytes(), before_guidance
             )

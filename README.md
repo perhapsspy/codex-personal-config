@@ -7,7 +7,6 @@ This repository is the shared source for files that should follow you between ma
 - `codex/AGENTS.md` -> `~/.codex/AGENTS.md`
 - `codex/agents/worker.toml` -> `~/.codex/agents/worker.toml`
 - `codex/agents/explorer.toml` -> `~/.codex/agents/explorer.toml`
-- `codex/agents/advisor.toml` -> `~/.codex/agents/advisor.toml`
 - `codex/config.shared.toml` -> selected keys in `~/.codex/config.toml`
 
 Auth, sessions, caches, memories, plugin state, app-generated paths, and project trust lists stay local. Only the core keys listed below are shared from `config.toml`.
@@ -44,7 +43,7 @@ If PowerShell blocks local scripts, run this once in that shell:
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 ```
 
-The installer copies `AGENTS.md` and the three managed agent TOMLs, merges declared core settings into local `config.toml`, and removes only stale agents it previously installed. Other local settings and personal agents are preserved. It then reads the installed files and declared settings back to verify they match the source.
+The installer copies `AGENTS.md` and the two managed agent TOMLs, merges declared core settings into local `config.toml`, and removes only stale agents it previously installed. Other local settings and personal agents are preserved. It then reads the installed files and declared settings back to verify they match the source.
 
 After installation, confirm the effective model, reasoning effort, and Standard speed in the client. Speed settings remain local and are not changed by this installer.
 
@@ -133,7 +132,7 @@ Windows PowerShell:
 .\scripts\sync-from-local.ps1
 ```
 
-The sync command copies local `AGENTS.md`, `worker.toml`, `explorer.toml`, and `advisor.toml` into the repository and extracts only the five core keys into `codex/config.shared.toml`. Other local settings and agents are ignored. Missing input files or invalid TOML stop the command before updates.
+The sync command copies local `AGENTS.md`, `worker.toml`, and `explorer.toml` into the repository and extracts only the five core keys into `codex/config.shared.toml`. Other local settings and agents are ignored. Missing input files or invalid TOML stop the command before updates.
 
 Sync is an explicit import from the selected host into the repository. Run it only when that host's shared settings are the intended new source. To receive published changes on another machine, use install, not sync.
 
@@ -160,9 +159,8 @@ Roles have separate responsibilities:
 
 - [worker](codex/agents/worker.toml) owns bounded implementation, required validation, and in-scope repair.
 - [explorer](codex/agents/explorer.toml) investigates bounded questions and checks explicit criteria without editing project files.
-- [advisor](codex/agents/advisor.toml) independently reviews direction, structure, and completion evidence without implementing changes. The main session owns final acceptance.
 
-Delegation and consultation triggers follow [the shared guidance](codex/AGENTS.md#위임). Each role file owns its description, model, effort, and execution instructions; shared defaults are defined in [codex/config.shared.toml](codex/config.shared.toml).
+Delegation follows [the shared guidance](codex/AGENTS.md#위임). Each role file owns its description, model, effort, and execution instructions; shared defaults are defined in [codex/config.shared.toml](codex/config.shared.toml).
 
 Custom agents inherit the parent session's permissions. Read-only role instructions constrain behavior but do not establish a separate read-only sandbox. Use the current runtime tools to confirm available role selection and effective permissions. See the [official custom-agent schema](https://learn.chatgpt.com/docs/agent-configuration/subagents#custom-agent-file-schema).
 
@@ -178,4 +176,4 @@ Edit [codex/config.shared.toml](codex/config.shared.toml) to change the shared d
 
 Installation applies only keys present in the shared file; omitting a key leaves its local value unchanged. Sync exports only managed keys present locally. Approval, sandbox, MCP, plugin, desktop, and project settings remain machine-local.
 
-The role TOMLs set model and effort for `worker`, `explorer`, and `advisor`; the shared `[agents]` defaults apply to children without a role-specific override.
+The role TOMLs set model and effort for `worker` and `explorer`; the shared `[agents]` defaults apply to children without a role-specific override.
