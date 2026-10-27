@@ -87,6 +87,8 @@ class PortableConfigTests(unittest.TestCase):
             "agents": {"max_concurrent_threads_per_session": 4,
                        "default_subagent_model": "gpt-6.1-sol",
                        "default_subagent_reasoning_effort": "high"},
+            "memories": {"extract_model": "gpt-6-luna",
+                         "consolidation_model": "gpt-6.1-terra"},
         })
 
     @unittest.skipUnless(os.name == "posix", "requires a POSIX shell")
@@ -286,16 +288,55 @@ class PortableConfigTests(unittest.TestCase):
     def test_extract_only_present_whitelisted_values(self):
         local = ('model = "future-model" # private comment\nsecret = "token"\n'
                  '[agents]\nmax_concurrent_threads_per_session = 9\n'
-                 '[agents.personal]\nmodel = "private"\n[plugins]\nenabled = true\n')
+                 '[agents.personal]\nmodel = "private"\n[plugins]\nenabled = true\n'
+                 '[memories]\nextract_model = "local-extractor"\ngenerate_memories = false\n')
         repo, home = self._config_case(local)
         self._run_bash_script(repo, "sync-from-local.sh", home)
         shared = (repo / "codex/config.shared.toml").read_text()
-        self.assertEqual(tomllib.loads(shared), {"model": "future-model", "agents": {"max_concurrent_threads_per_session": 9}})
+        self.assertEqual(tomllib.loads(shared), {
+            "model": "future-model", "agents": {"max_concurrent_threads_per_session": 9},
+            "memories": {"extract_model": "local-extractor"},
+        })
         self.assertNotIn("private", shared)
         self.assertNotIn("token", shared)
         self.assertEqual((home / "config.toml").read_text(), local)
         self._run_bash_script(repo, "sync-from-local.sh", home)
         self.assertEqual((repo / "codex/config.shared.toml").read_text(), shared)
+
+    @unittest.skipUnless(os.name == "posix", "requires a POSIX shell")
+    def test_memory_models_install_verify_and_sync_preserve_local_controls(self):
+        local = ('[features]\nmemories = false\n'
+                 '[memories] # local policy\n'
+                 'extract_model = "old-extractor" # extractor note\n'
+                 'consolidation_model = "old-consolidator" # consolidator note\n'
+                 'generate_memories = false\nuse_memories = false\n'
+                 'max_rollout_age_days = 7\n')
+        repo, home = self._config_case(local)
+        self._run_bash_script(repo, "install.sh", home)
+        first = (home / "config.toml").read_text()
+        config = tomllib.loads(first)
+        self.assertEqual(config["features"], {"memories": False})
+        self.assertEqual(config["memories"], {
+            "extract_model": "gpt-6-luna", "consolidation_model": "gpt-6.1-terra",
+            "generate_memories": False, "use_memories": False, "max_rollout_age_days": 7,
+        })
+        for comment in ("# local policy", "# extractor note", "# consolidator note"):
+            self.assertIn(comment, first)
+        self._run_bash_script(repo, "install.sh", home)
+        self.assertEqual((home / "config.toml").read_text(), first)
+        for field, model in (("extract_model", "gpt-6-luna"),
+                             ("consolidation_model", "gpt-6.1-terra")):
+            with self.subTest(field=field):
+                (home / "config.toml").write_text(first.replace(model, "drifted-model"))
+                result = self._verify(repo, home)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn(f"Key mismatch: config.toml:memories.{field}", result.stderr)
+        (home / "config.toml").write_text(first)
+        self.assertEqual(self._verify(repo, home).returncode, 0)
+        self._run_bash_script(repo, "sync-from-local.sh", home)
+        exported = tomllib.loads((repo / "codex/config.shared.toml").read_text())
+        self.assertEqual(exported, tomllib.loads((CODEX_ROOT / "config.shared.toml").read_text()))
+        self.assertEqual((home / "config.toml").read_text(), first)
 
     @unittest.skipUnless(os.name == "posix", "requires a POSIX shell")
     def test_invalid_toml_and_unknown_shared_reject_before_writes(self):
@@ -305,6 +346,9 @@ class PortableConfigTests(unittest.TestCase):
             ('model = "local"\n', 'model = "one"\nmodel = "two"\n'),
             ('model = "local"\n', '[plugins]\nenabled = true\n'),
             ('model = "local"\n', '[agents.personal]\nmodel = "private"\n'),
+            ('model = "local"\n', 'memories = "invalid"\n'),
+            ('model = "local"\n', '[memories]\nextract_model = false\n'),
+            ('model = "local"\n', '[memories]\ngenerate_memories = true\n'),
         ]
         for local, shared in cases:
             for script in ("install.sh", "sync-from-local.sh"):

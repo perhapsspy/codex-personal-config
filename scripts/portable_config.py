@@ -28,6 +28,8 @@ SHARED_PATHS = {
     ("agents", "max_concurrent_threads_per_session"): int,
     ("agents", "default_subagent_model"): str,
     ("agents", "default_subagent_reasoning_effort"): str,
+    ("memories", "extract_model"): str,
+    ("memories", "consolidation_model"): str,
 }
 
 
@@ -41,10 +43,10 @@ def read_toml(path, *, optional=False):
 def shared_values(document, *, strict):
     values = {}
     for key, value in document.items():
-        if key == "agents":
+        if key in ("agents", "memories"):
             if not isinstance(value, dict):
                 if strict:
-                    raise ValueError("Shared agents must be a TOML table")
+                    raise ValueError(f"Shared {key} must be a TOML table")
                 continue
             entries = [((key, child), item) for child, item in value.items()]
         else:
@@ -66,11 +68,11 @@ def merge_shared(local, values):
     for path, value in values.items():
         table = local
         if len(path) == 2:
-            if "agents" not in local:
-                local["agents"] = tomlkit.table()
-            table = local["agents"]
+            if path[0] not in local:
+                local[path[0]] = tomlkit.table()
+            table = local[path[0]]
             if not isinstance(table, dict):
-                raise ValueError("Local agents must be a TOML table to merge shared settings")
+                raise ValueError(f"Local {path[0]} must be a TOML table to merge shared settings")
         table[path[-1]] = value
     return local
 

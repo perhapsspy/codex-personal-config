@@ -4,7 +4,7 @@ Portable personal Codex guidance, support-agent definitions, and core model defa
 
 The installable source lives in [codex/](codex/). Installation applies the managed guidance, agent definitions, and shared defaults to the selected Codex home.
 
-Auth, sessions, caches, memories, plugin state, app-generated paths, and project trust lists stay local. Only declared shared settings are managed in `config.toml`.
+Auth, sessions, caches, generated memories, plugin state, app-generated paths, and project trust lists stay local. Only declared shared settings are managed in `config.toml`.
 
 ## Apply the repository on a machine
 
