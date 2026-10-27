@@ -17,7 +17,7 @@ except ImportError:
     sys.exit("Missing dependency: install requirements.txt with Python 3.11+ first.")
 
 
-AGENT_NAMES = ("executor.toml", "explorer.toml", "worker.toml")
+AGENT_NAMES = ("explorer.toml", "worker.toml")
 ROLE_FIELDS = (
     "name", "description", "model", "model_reasoning_effort",
     "developer_instructions",

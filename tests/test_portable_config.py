@@ -12,7 +12,6 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 CODEX_ROOT = REPO_ROOT / "codex"
 AGENT_ROOT = CODEX_ROOT / "agents"
 AGENT_CONTRACTS = {
-    "executor": ("gpt-6.1-terra", "high"),
     "explorer": ("gpt-6-luna", "max"),
     "worker": ("gpt-6.1-sol", "high"),
 }
@@ -63,7 +62,6 @@ class PortableConfigTests(unittest.TestCase):
             installed_files,
             [
                 Path("AGENTS.md"),
-                Path("agents/executor.toml"),
                 Path("agents/explorer.toml"),
                 Path("agents/worker.toml"),
                 Path("config.shared.toml"),
@@ -102,6 +100,7 @@ class PortableConfigTests(unittest.TestCase):
             agent_root.mkdir(parents=True)
 
             stale_names = [
+                "executor.toml",
                 "advisor.toml",
                 "code_mapper.toml",
                 "decision_reviewer.toml",
@@ -149,7 +148,7 @@ class PortableConfigTests(unittest.TestCase):
             self.assertEqual(personal_agent.read_text(encoding="utf-8"), "personal\n")
             self.assertEqual(
                 state_path.read_text(encoding="utf-8").splitlines(),
-                ["executor.toml", "explorer.toml", "worker.toml"],
+                ["explorer.toml", "worker.toml"],
             )
             config = tomllib.loads(config_path.read_text(encoding="utf-8"))
             self.assertTrue(config.pop("sentinel"))
@@ -191,7 +190,7 @@ class PortableConfigTests(unittest.TestCase):
 
     def test_verify_reports_missing_files_without_writing(self):
         for relative in ("config.toml", "AGENTS.md",
-                         "agents/executor.toml", "agents/explorer.toml", "agents/worker.toml"):
+                         "agents/explorer.toml", "agents/worker.toml"):
             with self.subTest(file=relative):
                 repo, home = self._config_case('model = "shared"\n', 'model = "shared"\n')
                 (home / relative).unlink()
@@ -207,7 +206,7 @@ class PortableConfigTests(unittest.TestCase):
 
     def test_verify_reports_byte_drift_in_each_managed_file(self):
         for relative in ("AGENTS.md",
-                         "agents/executor.toml", "agents/explorer.toml", "agents/worker.toml"):
+                         "agents/explorer.toml", "agents/worker.toml"):
             with self.subTest(file=relative):
                 repo, home = self._config_case('model = "shared"\n', 'model = "shared"\n')
                 with (home / relative).open("ab") as stream:
@@ -318,31 +317,18 @@ class PortableConfigTests(unittest.TestCase):
                     self.assertEqual({path: path.read_bytes() for path in before}, before)
 
     @unittest.skipUnless(os.name == "posix", "requires a POSIX shell")
-    def test_invalid_agents_reject_install_and_sync_before_writes(self):
-        for name in AGENT_CONTRACTS:
-            for script in ("install.sh", "sync-from-local.sh"):
-                with self.subTest(agent=name, script=script):
-                    repo, home = self._config_case('model = "local"\n')
-                    source = repo / "codex" if script == "install.sh" else home
-                    (source / "agents" / f"{name}.toml").write_text(f'name = "{name}"\n')
-                    before = self._tree_state(repo, home)
-                    result = self._run_bash_script(repo, script, home, check=False)
-                    self.assertNotEqual(result.returncode, 0)
-                    self.assertIn(f"{name}.toml", result.stderr)
-                    self.assertEqual(self._tree_state(repo, home), before)
-
-    @unittest.skipUnless(os.name == "posix", "requires a POSIX shell")
-    def test_missing_executor_rejects_install_and_sync_before_writes(self):
+    def test_invalid_worker_rejects_install_and_sync_before_writes(self):
         for script in ("install.sh", "sync-from-local.sh"):
             with self.subTest(script=script):
                 repo, home = self._config_case('model = "local"\n')
                 source = repo / "codex" if script == "install.sh" else home
-                (source / "agents/executor.toml").unlink()
-                before = self._tree_state(repo, home)
+                (source / "agents/worker.toml").write_text('name = "worker"\n')
+                before = {path: path.read_bytes() for base in (repo / "codex", home)
+                          for path in base.rglob("*") if path.is_file()}
                 result = self._run_bash_script(repo, script, home, check=False)
                 self.assertNotEqual(result.returncode, 0)
-                self.assertIn("executor.toml", result.stderr)
-                self.assertEqual(self._tree_state(repo, home), before)
+                self.assertIn("worker.toml", result.stderr)
+                self.assertEqual({path: path.read_bytes() for path in before}, before)
 
     @unittest.skipUnless(os.name == "posix", "requires a POSIX shell")
     def test_empty_shared_retains_all_local_values(self):
@@ -416,8 +402,7 @@ class PortableConfigTests(unittest.TestCase):
             before_worker = (repo_root / "codex" / "agents" / "worker.toml").read_bytes()
             (codex_home / "AGENTS.md").write_text("new guidance\n", encoding="utf-8")
             (codex_home / "config.toml").write_text("", encoding="utf-8")
-            for name in ("executor", "worker"):
-                shutil.copy2(AGENT_ROOT / f"{name}.toml", local_agents / f"{name}.toml")
+            shutil.copy2(AGENT_ROOT / "worker.toml", local_agents / "worker.toml")
 
             result = self._run_bash_script(
                 repo_root, "sync-from-local.sh", codex_home, check=False

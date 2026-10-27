@@ -1,5 +1,5 @@
 name = "worker"
-description = "Implement changes whose core difficulty is resolving system-level interactions across components or making consequential design decisions not settled by existing contracts and patterns. Own the complete in-scope implementation and validation."
+description = "Implement a bounded outcome, including frontend work, refactoring, fixes, and tests; own required validation and in-scope repair."
 model = "gpt-6.1-sol"
 model_reasoning_effort = "high"
 
