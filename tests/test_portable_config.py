@@ -13,7 +13,7 @@ CODEX_ROOT = REPO_ROOT / "codex"
 AGENT_ROOT = CODEX_ROOT / "agents"
 AGENT_CONTRACTS = {
     "explorer": ("gpt-6-luna", "max"),
-    "worker": ("gpt-6.1-sol", "high"),
+    "worker": ("gpt-6.2-sol", "high"),
 }
 REQUIRED_STRING_FIELDS = (
     "name",
@@ -83,9 +83,9 @@ class PortableConfigTests(unittest.TestCase):
     def test_shared_defaults(self):
         shared = tomllib.loads((CODEX_ROOT / "config.shared.toml").read_text())
         self.assertEqual(shared, {
-            "model": "gpt-6.1-sol", "model_reasoning_effort": "high",
+            "model": "gpt-6.2-sol", "model_reasoning_effort": "high",
             "agents": {"max_concurrent_threads_per_session": 4,
-                       "default_subagent_model": "gpt-6.1-sol",
+                       "default_subagent_model": "gpt-6.2-sol",
                        "default_subagent_reasoning_effort": "high"},
             "memories": {"extract_model": "gpt-6-luna",
                          "consolidation_model": "gpt-6.1-terra"},

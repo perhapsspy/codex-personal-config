@@ -1,6 +1,6 @@
 name = "worker"
 description = "Implement a bounded outcome, including frontend work, refactoring, fixes, and tests; own required validation and in-scope repair."
-model = "gpt-6.1-sol"
+model = "gpt-6.2-sol"
 model_reasoning_effort = "high"
 
 developer_instructions = """
