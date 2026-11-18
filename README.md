@@ -54,15 +54,14 @@ CODEX_HOME="$HOME/.codex-test" ./scripts/install.sh
 
 ## Deployment targets
 
-Use this repository as the shared source for the Mac, the Codex running on the dot's cloud instance, and Windows. Installation runs on each target; publishing this repository does not update the other machines.
+Use this repository as the shared source for the Macs and Windows. Installation runs on each target; publishing this repository does not update the other machines.
 
 | Target | How it is updated | Evidence required |
 | --- | --- | --- |
 | Mac | Run the installer in the local checkout. | Source revision, host, actual Codex home, and verification result. |
-| Dot instance | Run the same installer through a supported execution path on the dot's own cloud computer. | Its own host and Codex home, source revision, supported Codex installation, and verification result. |
 | Windows | Pull the repository and run the PowerShell installer manually. | The Windows verification output; otherwise report that its manual update is pending. |
 
-For each deployment or sync, report the targets separately as verified, pending, or blocked. If a target is unavailable, finish the accessible targets and name the missing connection or manual step. A successful Mac run, a cloud task label, or a message sent to the dot is not evidence of installation on the dot instance.
+For each deployment or sync, report the targets separately as verified, pending, or blocked. If a target is unavailable, finish the accessible targets and name the missing connection or manual step. A successful install on one Mac does not verify another target.
 
 Before installing, identify the Codex process's actual `CODEX_HOME` and the host's supported Codex version. An existing profile or session override may change effective settings. Verification checks saved files and declared defaults; it does not prove a running session has reloaded them or that the host supports every configured role. Check those separately in the target client when claiming runtime activation.
 
@@ -93,23 +92,6 @@ To check an installation without changing it:
 ```
 
 Both verification wrappers accept the same Codex-home override as their installer (`--codex-home` or `-CodexHome`). Verification reports host, platform, source location/revision, Codex home, and check time. A missing or mismatched managed file or declared setting returns a nonzero exit status. Unmanaged settings are outside that comparison.
-
-### Applying to the dot instance
-
-The dot's cloud computer and the connected Mac are separate execution targets. Use an available supported remote connection or explicitly ask the dot to execute the deployment on its own cloud computer. Verify the destination before writing; do not substitute the connected Mac when the cloud destination is unavailable. The product distinction is described in [Meet dots](https://learn.chatgpt.com/docs/dots).
-
-When handing off to the dot, give it the published revision and this bounded request:
-
-```text
-Install perhapsspy/codex-personal-config at revision <published commit> on the Codex running on your own cloud instance.
-First report the actual host/OS, Codex executable/version, and effective CODEX_HOME; distinguish this environment from the connected Mac.
-Use existing authorized repository access and preserve local changes. Obtain the requested revision without force-updating an existing checkout.
-Run the repository's scripts/install.sh against that Codex home, then scripts/verify.sh. Preserve credentials, permissions, MCP settings, session data, and other unmanaged settings.
-Return the source revision and verification output, plus any role-support or running-session reload limitation. Do not print credentials or the full local config.
-If your cloud instance cannot run Codex or does not expose a supported installation path, report that target as blocked instead of applying to another host.
-```
-
-If the cloud Codex home is ephemeral, repeat the same installation when that environment is recreated. Determine persistence on the target; do not assume an installation survives recreation.
 
 ## Promote local shared settings into this repository
 
@@ -143,7 +125,7 @@ Sync is an explicit import from the selected host into the repository. Run it on
 
 4. Review `git diff`.
 5. Commit and push this repository.
-6. Apply that revision to the Mac and the dot instance using the target workflow above; report each result independently.
+6. Apply that revision to each accessible Mac using the target workflow above; report each result independently.
 7. Provide the revision and PowerShell command for the manual Windows update, and keep its status pending until Windows verification is available.
 
 Validation checks the portable agent contracts and install/sync behavior.

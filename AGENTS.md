@@ -17,7 +17,7 @@
 
 ## Deployment Targets
 
-- For deployment or sync work, follow the target workflow in `README.md` for the Mac, the dot instance's Codex, and manual Windows installs. Check each accessible target on its actual host; report verified, pending, or blocked status separately. A local install does not verify the dot instance.
+- For deployment or sync work, follow the target workflow in `README.md` for the Macs and manual Windows installs. Check each accessible target on its actual host; report verified, pending, or blocked status separately.
 - Import shared settings only from the explicitly selected source host. After reviewing and publishing them, install and verify that revision on the other targets; preserve their host-local settings and state.
 
 ## Completion
