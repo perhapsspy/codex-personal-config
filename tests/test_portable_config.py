@@ -12,6 +12,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 CODEX_ROOT = REPO_ROOT / "codex"
 AGENT_ROOT = CODEX_ROOT / "agents"
 AGENT_CONTRACTS = {
+    "advisor": ("gpt-6.2-astra", "xhigh"),
     "explorer": ("gpt-6-luna", "max"),
     "worker": ("gpt-6.2-sol", "high"),
 }
@@ -62,6 +63,7 @@ class PortableConfigTests(unittest.TestCase):
             installed_files,
             [
                 Path("AGENTS.md"),
+                Path("agents/advisor.toml"),
                 Path("agents/explorer.toml"),
                 Path("agents/worker.toml"),
                 Path("config.shared.toml"),
@@ -103,7 +105,6 @@ class PortableConfigTests(unittest.TestCase):
 
             stale_names = [
                 "executor.toml",
-                "advisor.toml",
                 "code_mapper.toml",
                 "decision_reviewer.toml",
                 "docs_researcher.toml",
@@ -150,7 +151,7 @@ class PortableConfigTests(unittest.TestCase):
             self.assertEqual(personal_agent.read_text(encoding="utf-8"), "personal\n")
             self.assertEqual(
                 state_path.read_text(encoding="utf-8").splitlines(),
-                ["explorer.toml", "worker.toml"],
+                [f"{name}.toml" for name in AGENT_CONTRACTS],
             )
             config = tomllib.loads(config_path.read_text(encoding="utf-8"))
             self.assertTrue(config.pop("sentinel"))
@@ -192,7 +193,7 @@ class PortableConfigTests(unittest.TestCase):
 
     def test_verify_reports_missing_files_without_writing(self):
         for relative in ("config.toml", "AGENTS.md",
-                         "agents/explorer.toml", "agents/worker.toml"):
+                         *(f"agents/{name}.toml" for name in AGENT_CONTRACTS)):
             with self.subTest(file=relative):
                 repo, home = self._config_case('model = "shared"\n', 'model = "shared"\n')
                 (home / relative).unlink()
@@ -208,7 +209,7 @@ class PortableConfigTests(unittest.TestCase):
 
     def test_verify_reports_byte_drift_in_each_managed_file(self):
         for relative in ("AGENTS.md",
-                         "agents/explorer.toml", "agents/worker.toml"):
+                         *(f"agents/{name}.toml" for name in AGENT_CONTRACTS)):
             with self.subTest(file=relative):
                 repo, home = self._config_case('model = "shared"\n', 'model = "shared"\n')
                 with (home / relative).open("ab") as stream:
@@ -453,7 +454,7 @@ class PortableConfigTests(unittest.TestCase):
             )
 
             self.assertNotEqual(result.returncode, 0)
-            self.assertIn("explorer.toml", result.stderr)
+            self.assertIn("advisor.toml", result.stderr)
             self.assertEqual(
                 (repo_root / "codex" / "AGENTS.md").read_bytes(), before_guidance
             )
